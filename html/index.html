@@ -41,6 +41,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="../js/vendor/lucide.min.js"></script>
+    <script src="../js/ocean-app.js"></script>
 
     <style>
         body {
@@ -126,12 +127,40 @@
             </div>
 
             <!-- Actions Right -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3 sm:space-x-4">
                 
                 <!-- Search Icon -->
                 <button onclick="toggleSearchModal()" class="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition" title="Tìm kiếm" data-i18n-aria="search_label" data-i18n-title="search_label">
                     <i data-lucide="search" class="w-5 h-5"></i>
                 </button>
+
+                <!-- User Auth Button / Profile Menu -->
+                <div id="nav-user-container" class="relative inline-block text-left">
+                    <button id="nav-login-btn" onclick="openAuthModal()" class="px-3 py-1.5 rounded-full border border-brand-red/60 bg-brand-red/10 text-white hover:bg-brand-red text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                        <span>Đăng nhập</span>
+                    </button>
+                    <div id="nav-user-menu" class="hidden relative">
+                        <button onclick="toggleUserDropdown(event)" class="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition">
+                            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120" class="w-6 h-6 rounded-full object-cover border border-white/30" />
+                            <span id="nav-user-name" class="text-xs font-bold text-white max-w-[100px] truncate">Hội viên</span>
+                            <span id="nav-user-badge" class="text-[9px] px-1.5 py-0.5 rounded bg-brand-red text-white font-extrabold uppercase tracking-wider">VIP</span>
+                        </button>
+                        <div id="nav-user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1">
+                            <div id="nav-menu-member-links">
+                                <button onclick="openBookingModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Đặt lịch với HLV</button>
+                                <button onclick="openMemberPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📋 Lịch tập của tôi</button>
+                                <button onclick="openReviewModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">⭐ Đánh giá Phòng & HLV</button>
+                            </div>
+                            <div id="nav-menu-coach-links" class="hidden">
+                                <button onclick="openCoachPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💪 Cổng Huấn Luyện Viên</button>
+                                <button onclick="openCoachPortalModal('schedule'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Ai đã đặt lịch / Ca dạy</button>
+                                <button onclick="openCoachPortalModal('cert'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">🎓 Cập nhật bằng cấp & bio</button>
+                            </div>
+                            <button onclick="handleLogout(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-red-400 hover:bg-red-500/10 border-t border-white/10 flex items-center gap-2 mt-1">🚪 Đăng xuất</button>
+                        </div>
+                    </div>
+                </div>
 
                 <a href="admin.html" class="hidden sm:inline-flex items-center justify-center px-3 py-2 rounded border border-white/15 bg-white/5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-200 hover:bg-white hover:text-black transition">
                     Admin
@@ -166,6 +195,11 @@
             <a href="#bang-gia" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white" data-i18n="nav_pricing">Bảng Giá</a>
             <a href="admin.html" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white">Admin</a>
             <div class="pt-4 border-t border-white/10 flex flex-col gap-3">
+                <div id="mobile-auth-section">
+                    <button onclick="openAuthModal(); toggleMobileMenu()" class="w-full py-2.5 bg-brand-red text-white font-bold text-xs uppercase tracking-wider text-center rounded">
+                        🔐 Đăng nhập Hội viên / HLV
+                    </button>
+                </div>
                 <button onclick="openModal('register'); toggleMobileMenu()" class="w-full py-3 bg-white text-black font-semibold text-xs uppercase tracking-wider text-center rounded">
                     <span data-i18n="btn_header_register">Đăng ký trải nghiệm</span> ↗
                 </button>
@@ -495,102 +529,88 @@
                 <div>
                     <span class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 block" data-i18n="coaches_eyebrow">ĐỘI NGŨ COACH</span>
                     <h2 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display" data-i18n="coaches_title">HUẤN LUYỆN VIÊN GIÀU KINH NGHIỆM</h2>
+                    <p class="text-sm text-gray-600 max-w-md mt-2" data-i18n="coaches_desc">Mỗi chương trình đều do coach có tư duy cá nhân hóa, theo dõi định kỳ và chỉnh form sát từng buổi tập.</p>
                 </div>
-                <p class="text-sm text-gray-600 max-w-md mt-4 md:mt-0" data-i18n="coaches_desc">Mỗi chương trình đều do coach có tư duy cá nhân hóa, theo dõi định kỳ và chỉnh form sát từng buổi tập.</p>
+                <div class="mt-6 md:mt-0 flex flex-wrap gap-3">
+                    <button onclick="openApplyCoachModal()" class="px-5 py-3 bg-black text-white hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-md flex items-center gap-2">
+                        <span>📝 Ứng tuyển Huấn Luyện Viên</span> ↗
+                    </button>
+                    <button onclick="openBookingModal()" class="px-5 py-3 border border-black text-black hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider rounded-lg transition">
+                        <span>📅 Đặt lịch tập PT</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm group">
-                    <div class="h-72 overflow-hidden">
-                        <img src="../assets/images/coach-hai.jpg" alt="Huấn luyện viên Hải" data-i18n-alt="coach_hai_alt" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2" data-i18n="coach_hai_role">HEAD COACH</div>
-                        <h3 class="text-xl font-black uppercase font-display mb-1" data-i18n="coach_hai_name">ANH HẢI</h3>
-                        <p class="text-sm text-gray-600 mb-3" data-i18n="coach_hai_desc">Chuyên giảm mỡ & cải thiện thể trạng</p>
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                            <span data-i18n="coach_hai_exp">8 năm kinh nghiệm</span>
-                            <span>•</span>
-                            <span>CF-L1</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm group">
-                    <div class="h-72 overflow-hidden">
-                        <img src="../assets/images/coach-thao.jpg" alt="Huấn luyện viên Thảo" data-i18n-alt="coach_thao_alt" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2" data-i18n="coach_thao_role">STRENGTH COACH</div>
-                        <h3 class="text-xl font-black uppercase font-display mb-1" data-i18n="coach_thao_name">CHỊ THẢO</h3>
-                        <p class="text-sm text-gray-600 mb-3" data-i18n="coach_thao_desc">Tăng cơ, cải thiện tỷ lệ và sức mạnh</p>
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                            <span data-i18n="coach_thao_exp">6 năm kinh nghiệm</span>
-                            <span>•</span>
-                            <span>Powerlifting</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm group">
-                    <div class="h-72 overflow-hidden">
-                        <img src="../assets/images/coach-huy.jpg" alt="Huấn luyện viên Huy" data-i18n-alt="coach_huy_alt" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    </div>
-                    <div class="p-6">
-                        <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2" data-i18n="coach_huy_role">REHAB COACH</div>
-                        <h3 class="text-xl font-black uppercase font-display mb-1" data-i18n="coach_huy_name">ANH HUY</h3>
-                        <p class="text-sm text-gray-600 mb-3" data-i18n="coach_huy_desc">Phục hồi chấn thương & sửa tư thế</p>
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                            <span data-i18n="coach_huy_exp">9 năm kinh nghiệm</span>
-                            <span>•</span>
-                            <span>Corrective exercise</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Dynamic Coach Cards Grid -->
+            <div id="coaches-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dynamically rendered via ocean-app.js -->
             </div>
         </div>
     </section>
 
-    <!-- SECTION 5: DARK MODE - HỘI VIÊN NÓI GÌ -->
+    <!-- SECTION 5: DARK MODE - CỘNG ĐỒNG & HỘI VIÊN -->
     <section id="cong-dong" class="py-24 bg-brand-dark text-white border-t border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-brand-red mb-2 block">COMMUNITY</span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display" data-i18n="community_title">HỘI VIÊN NÓI GÌ VỀ THE OCEAN</h2>
+                    <span class="text-xs font-bold uppercase tracking-widest text-brand-red mb-2 block">THE OCEAN COMMUNITY</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display">CỘNG ĐỒNG & ĐÁNH GIÁ</h2>
                 </div>
-                <div class="flex items-center gap-2 mt-4 md:mt-0 text-yellow-400">
-                    <span>★★★★★</span>
-                    <span class="text-sm text-gray-300" data-i18n="reviews_rating">4.9/5 từ 1,200+ thành viên</span>
+                <!-- Community Tabs -->
+                <div class="flex items-center gap-2 mt-6 md:mt-0 bg-white/5 p-1 rounded-xl border border-white/10">
+                    <button id="tab-feed-btn" onclick="switchCommunityTab('feed')" class="px-4 py-2 rounded-lg bg-brand-red text-white text-xs font-bold uppercase tracking-wider transition">
+                        💬 Bảng tin Hội viên
+                    </button>
+                    <button id="tab-reviews-btn" onclick="switchCommunityTab('reviews')" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition">
+                        ⭐ Đánh giá (Reviews)
+                    </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="glass-card p-6 rounded-lg space-y-4">
-                    <div class="flex items-center gap-2 text-yellow-400">★★★★★</div>
-                    <p class="text-sm text-gray-300 leading-relaxed" data-i18n="review_one">“Tôi tập ở đây 6 tháng rồi thấy form cơ bắp rõ, ít khi phải đợi máy và không bị cảm giác chen chúc như phòng tập thường.”</p>
-                    <div class="pt-4 border-t border-white/10">
-                        <div class="font-bold uppercase text-white">KHÁNH</div>
-                        <div class="text-xs text-gray-400" data-i18n="review_one_goal">Tăng cơ / giảm mỡ</div>
+            <!-- SUB-TAB 1: BẢNG TIN HOẠT ĐỘNG HỘI VIÊN (COMMUNITY FEED) -->
+            <div id="community-tab-feed">
+                <!-- Post Creation Box for Logged In Members -->
+                <div class="glass-card p-6 rounded-2xl mb-10 border border-white/15">
+                    <div class="flex items-start gap-4">
+                        <img id="feed-publisher-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120" class="w-11 h-11 rounded-full object-cover border-2 border-brand-red/60" />
+                        <div class="flex-1 space-y-3">
+                            <textarea id="feed-post-content" rows="2" placeholder="Hôm nay bạn tập gì? Chia sẻ mức tạ, nhật ký hoặc khoảnh khắc check-in cùng The Ocean..." class="w-full bg-black/40 border border-white/20 rounded-xl p-3.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-red resize-none"></textarea>
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                <div class="flex items-center gap-2 flex-1 max-w-sm">
+                                    <input id="feed-post-image" type="url" placeholder="Dán link ảnh check-in (tùy chọn)..." class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-red" />
+                                </div>
+                                <button onclick="handlePublishPost()" class="px-5 py-2.5 bg-brand-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center gap-2">
+                                    <span>Đăng bài viết</span> ↗
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-6 rounded-lg space-y-4">
-                    <div class="flex items-center gap-2 text-yellow-400">★★★★★</div>
-                    <p class="text-sm text-gray-300 leading-relaxed" data-i18n="review_two">“Coach rất kỹ, hướng dẫn từng động tác và lịch tập rõ ràng. Ngoài ra không gian yên tĩnh, private và sạch sẽ hơn nhiều so với gym khác.”</p>
-                    <div class="pt-4 border-t border-white/10">
-                        <div class="font-bold uppercase text-white">LINH</div>
-                        <div class="text-xs text-gray-400" data-i18n="review_two_goal">Cải thiện sức khỏe</div>
+                <!-- Community Posts Grid -->
+                <div id="community-posts-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Dynamically rendered via ocean-app.js -->
+                </div>
+            </div>
+
+            <!-- SUB-TAB 2: ĐÁNH GIÁ PHÒNG GYM & HUẤN LUYỆN VIÊN (REVIEWS) -->
+            <div id="community-tab-reviews" class="hidden">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 p-6 glass-card rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-4">
+                        <div class="text-4xl font-black text-yellow-400">4.9<span class="text-xl text-gray-400">/5</span></div>
+                        <div>
+                            <div class="text-yellow-400 text-base">★★★★★</div>
+                            <p class="text-xs text-gray-400 mt-0.5">Dựa trên 1,200+ đánh giá thực tế của Hội viên</p>
+                        </div>
                     </div>
+                    <button onclick="openReviewModal()" class="px-5 py-3 bg-white text-black hover:bg-gray-200 font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg flex items-center gap-2">
+                        <span>✍️ Viết đánh giá phòng & HLV</span>
+                    </button>
                 </div>
 
-                <div class="glass-card p-6 rounded-lg space-y-4">
-                    <div class="flex items-center gap-2 text-yellow-400">★★★★★</div>
-                    <p class="text-sm text-gray-300 leading-relaxed" data-i18n="review_three">“Mình thích tầng recovery và sauna. Tập xong cảm thấy hồi phục nhanh, không bị đau nhức như nhiều nơi khác.”</p>
-                    <div class="pt-4 border-t border-white/10">
-                        <div class="font-bold uppercase text-white">THÁI</div>
-                        <div class="text-xs text-gray-400" data-i18n="review_three_goal">Phục hồi & sức bền</div>
-                    </div>
+                <!-- Reviews Grid -->
+                <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Dynamically rendered via ocean-app.js -->
                 </div>
             </div>
         </div>
@@ -763,6 +783,372 @@
                 <p id="register-error" class="hidden text-sm text-red-300" role="alert"></p>
                 <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded hover:bg-gray-200 transition">
                     <span data-i18n="form_submit">GỬI ĐĂNG KÝ ↗</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (ĐĂNG NHẬP HỌC VIÊN & HUẤN LUYỆN VIÊN) -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-md w-full relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="text-center mb-6">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">HỆ THỐNG NỘI BỘ THE OCEAN</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐĂNG NHẬP</h3>
+                <p class="text-xs text-gray-400 mt-1">Dành cho Học viên & Huấn luyện viên đã được Admin cấp tài khoản.</p>
+            </div>
+
+            <!-- Role Tabs -->
+            <div class="flex bg-black/40 p-1 rounded-lg border border-white/10 mb-5">
+                <button type="button" id="auth-tab-member" onclick="switchAuthRole('member')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition">Hội Viên</button>
+                <button type="button" id="auth-tab-coach" onclick="switchAuthRole('coach')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition">Huấn Luyện Viên</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthLogin(event)" class="space-y-4">
+                <div>
+                    <label id="auth-username-label" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Tên đăng nhập hoặc Số điện thoại</label>
+                    <input id="auth-username" type="text" required placeholder="Nhập tên đăng nhập hoặc số điện thoại..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mật khẩu</label>
+                    <input id="auth-password" type="password" required placeholder="Nhập mật khẩu..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <div id="auth-hint" class="p-3 bg-white/5 border border-white/10 rounded-lg text-[11px] text-gray-400 leading-relaxed">
+                    💡 <em>Học viên: Tài khoản do Admin cấp khi chốt gói tập.</em><br>
+                    💡 <em>HLV: Mặc định pass <code>coach123</code> (hoặc pass do Admin cấp sau khi duyệt apply).</em>
+                </div>
+
+                <p id="auth-error" class="hidden text-xs text-red-400 bg-red-950/40 border border-red-800 p-2.5 rounded-lg" role="alert"></p>
+
+                <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition shadow-lg">
+                    Xác nhận Đăng nhập ↗
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLY COACH MODAL (ỨNG TUYỂN HUẤN LUYỆN VIÊN) -->
+    <div id="apply-coach-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-lg w-full relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeApplyCoachModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mb-5">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">GIA NHẬP ĐỘI NGŨ THE OCEAN</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ỨNG TUYỂN HUẤN LUYỆN VIÊN</h3>
+                <p class="text-xs text-gray-400 mt-1">Hồ sơ sẽ được Ban quản trị duyệt và cấp tài khoản HLV chính thức.</p>
+            </div>
+
+            <form id="apply-coach-form" onsubmit="handleApplyCoachSubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Họ và tên *</label>
+                        <input id="coach-app-name" type="text" required placeholder="Nguyễn Văn A" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Số điện thoại *</label>
+                        <input id="coach-app-phone" type="tel" required placeholder="0901234567" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Email</label>
+                        <input id="coach-app-email" type="email" placeholder="coach@theocean.vn" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Vị trí ứng tuyển *</label>
+                        <select id="coach-app-role" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                            <option value="STRENGTH COACH">STRENGTH COACH (Sức mạnh & Tăng cơ)</option>
+                            <option value="REHAB COACH">REHAB COACH (Phục hồi chức năng & Tư thế)</option>
+                            <option value="FAT LOSS COACH">FAT LOSS COACH (Giảm mỡ & Thể trạng)</option>
+                            <option value="HYBRID ATHLETE COACH">HYBRID ATHLETE (Sức bền & Hiệu suất)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Kinh nghiệm huấn luyện *</label>
+                        <input id="coach-app-exp" type="text" required placeholder="Ví dụ: 5 năm kinh nghiệm" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Bằng cấp & Chứng chỉ</label>
+                        <input id="coach-app-cert" type="text" placeholder="NASM-CPT, CSCS, CF-L1..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Link ảnh đại diện (Ảnh chân dung/thể thao)</label>
+                    <input id="coach-app-image" type="url" placeholder="https://images.unsplash.com/... (để trống nếu dùng ảnh mặc định)" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Giới thiệu bản thân & Triết lý huấn luyện</label>
+                    <textarea id="coach-app-intro" rows="3" placeholder="Chia sẻ phong cách huấn luyện, thành tích học viên đã đạt được..." class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-brand-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg">
+                    GỬI HỒ SƠ ỨNG TUYỂN ↗
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BOOKING MODAL (ĐẶT LỊCH VỚI HUẤN LUYỆN VIÊN) -->
+    <div id="booking-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-md w-full relative shadow-2xl">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mb-5">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">PRIVATE STUDIO TẦNG 3</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐẶT LỊCH VỚI COACH</h3>
+                <p class="text-xs text-gray-400 mt-1">Buổi tập 1 kèm 1 riêng tư với Huấn luyện viên The Ocean Gym.</p>
+            </div>
+
+            <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chọn Huấn luyện viên *</label>
+                    <select id="booking-coach-select" required class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Ngày tập *</label>
+                        <input id="booking-date" type="date" required class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Khung giờ tập *</label>
+                        <select id="booking-time" required class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                            <option value="07:00 - 08:30 (Sáng sớm)">07:00 - 08:30 (Sáng sớm)</option>
+                            <option value="09:00 - 10:30 (Sáng)">09:00 - 10:30 (Sáng)</option>
+                            <option value="14:00 - 15:30 (Chiều)">14:00 - 15:30 (Chiều)</option>
+                            <option value="17:00 - 18:30 (Tan tầm)">17:00 - 18:30 (Tan tầm)</option>
+                            <option value="19:00 - 20:30 (Tối)">19:00 - 20:30 (Tối)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Họ tên học viên *</label>
+                    <input id="booking-member-name" type="text" required placeholder="Họ và tên..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Số điện thoại liên hệ *</label>
+                    <input id="booking-member-phone" type="tel" required placeholder="0901234567..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Ghi chú mục tiêu buổi tập</label>
+                    <input id="booking-note" type="text" placeholder="Ví dụ: Đo InBody, chỉnh form Deadlift, test lực..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition shadow-lg">
+                    XÁC NHẬN ĐẶT LỊCH ↗
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- REVIEW MODAL (ĐÁNH GIÁ PHÒNG GYM & HUẤN LUYỆN VIÊN) -->
+    <div id="review-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-md w-full relative shadow-2xl">
+            <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mb-5">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">Ý KIẾN HỘI VIÊN</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐÁNH GIÁ TRẢI NGHIỆM</h3>
+                <p class="text-xs text-gray-400 mt-1">Đóng góp đánh giá sao và hình ảnh để The Ocean Gym ngày càng hoàn thiện.</p>
+            </div>
+
+            <form id="review-form" onsubmit="handleReviewSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Đối tượng đánh giá *</label>
+                    <select id="review-target-type" onchange="toggleReviewTargetName()" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <option value="gym">Đánh giá Cơ sở vật chất & Không gian Phòng Gym</option>
+                        <option value="coach">Đánh giá Huấn luyện viên (Personal Trainer)</option>
+                    </select>
+                </div>
+
+                <div id="review-coach-select-wrap" class="hidden">
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chọn Huấn luyện viên</label>
+                    <select id="review-coach-select" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-2">Đánh giá số sao (Rating) *</label>
+                    <div id="star-rating-container" class="flex items-center gap-2 text-2xl text-yellow-400 cursor-pointer">
+                        <span onclick="setReviewRating(1)">★</span>
+                        <span onclick="setReviewRating(2)">★</span>
+                        <span onclick="setReviewRating(3)">★</span>
+                        <span onclick="setReviewRating(4)">★</span>
+                        <span onclick="setReviewRating(5)">★</span>
+                        <span id="star-rating-label" class="text-xs text-gray-300 ml-2 font-bold">5 sao (Xuất sắc)</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Họ tên của bạn *</label>
+                    <input id="review-user-name" type="text" required placeholder="Họ tên của bạn..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Nội dung đánh giá & cảm nhận *</label>
+                    <textarea id="review-comment" rows="3" required placeholder="Chia sẻ cảm nhận về thiết bị, không gian, âm nhạc, sự hỗ trợ của coach..." class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Link hình ảnh thực tế (tùy chọn)</label>
+                    <input id="review-image" type="url" placeholder="https://images.unsplash.com/... (link ảnh check-in)" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-brand-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg">
+                    GỬI ĐÁNH GIÁ ↗
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- COACH PORTAL MODAL (CỔNG HUẤN LUYỆN VIÊN) -->
+    <div id="coach-portal-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-3xl w-full relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCoachPortalModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="flex items-center gap-4 border-b border-white/10 pb-5 mb-6">
+                <img id="coach-portal-avatar" src="" class="w-16 h-16 rounded-xl object-cover border-2 border-brand-red" />
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 id="coach-portal-name" class="text-2xl font-black uppercase text-white font-display">COACH</h3>
+                        <span class="px-2 py-0.5 rounded bg-brand-red text-white text-[10px] font-extrabold uppercase">COACH PORTAL</span>
+                    </div>
+                    <p id="coach-portal-role" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+            </div>
+
+            <!-- Portal Tabs -->
+            <div class="flex gap-2 border-b border-white/10 pb-3 mb-6">
+                <button type="button" id="cptab-btn-bookings" onclick="switchCoachPortalTab('bookings')" class="px-4 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider">📅 Học viên đã đặt lịch</button>
+                <button type="button" id="cptab-btn-cert" onclick="switchCoachPortalTab('cert')" class="px-4 py-2 rounded-lg text-gray-400 hover:text-white font-bold text-xs uppercase tracking-wider">🎓 Cập nhật Bằng cấp & Bio</button>
+            </div>
+
+            <!-- Tab 1: Danh sách học viên book lịch -->
+            <div id="cptab-content-bookings">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-gray-300">Danh sách Ca dạy Studio của bạn</h4>
+                    <span id="coach-booking-count" class="text-xs text-brand-red font-bold">0 ca tập</span>
+                </div>
+                <div id="coach-bookings-list" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Tab 2: Cập nhật bằng cấp & profile -->
+            <div id="cptab-content-cert" class="hidden">
+                <form id="coach-profile-form" onsubmit="handleUpdateCoachProfile(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Bằng cấp & Chứng chỉ quốc tế</label>
+                        <input id="edit-coach-cert" type="text" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <p class="text-[11px] text-gray-500 mt-1">Ví dụ: NASM-CPT, CSCS, CF-L1, Corrective Exercise Specialist</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Số năm kinh nghiệm</label>
+                        <input id="edit-coach-exp" type="text" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chuyên môn / Mô tả phong cách huấn luyện</label>
+                        <textarea id="edit-coach-desc" rows="3" class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Link ảnh đại diện</label>
+                        <input id="edit-coach-img" type="url" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    </div>
+
+                    <button type="submit" class="px-6 py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition">
+                        Lưu thông tin & Đồng bộ Website ↗
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBER PORTAL MODAL (CỔNG HỌC VIÊN) -->
+    <div id="member-portal-modal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-2xl w-full relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeMemberPortalModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Close">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="flex items-center gap-4 border-b border-white/10 pb-5 mb-6">
+                <img id="member-portal-avatar" src="" class="w-14 h-14 rounded-full object-cover border-2 border-brand-red" />
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 id="member-portal-name" class="text-2xl font-black uppercase text-white font-display">HỘI VIÊN</h3>
+                        <span id="member-portal-plan" class="px-2 py-0.5 rounded bg-brand-red text-white text-[10px] font-extrabold uppercase">VIP</span>
+                    </div>
+                    <p id="member-portal-phone" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-gray-300">Lịch tập cá nhân đã đặt</h4>
+                    <button onclick="closeMemberPortalModal(); openBookingModal();" class="text-xs text-brand-red font-bold hover:underline">+ Đặt lịch tập mới</button>
+                </div>
+                <div id="member-bookings-list" class="space-y-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING LIVE CHAT WIDGET -->
+    <div id="chat-widget-container" class="fixed bottom-6 right-6 z-40">
+        <!-- Floating trigger button -->
+        <button id="chat-toggle-btn" onclick="toggleChatWidget()" class="bg-brand-red hover:bg-red-700 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl flex items-center gap-2.5 transition transform hover:scale-105 border border-white/20">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            <span class="hidden sm:inline text-xs font-bold uppercase tracking-wider">Hỗ trợ & Trao đổi</span>
+            <span id="chat-unread-dot" class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+        </button>
+
+        <!-- Chat Popup Box -->
+        <div id="chat-box-window" class="hidden absolute bottom-16 right-0 w-[92vw] sm:w-96 bg-zinc-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="height: 480px;">
+            <!-- Chat Header -->
+            <div class="p-4 bg-black/60 border-b border-white/10 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/50"></span>
+                    <div>
+                        <div class="text-xs font-bold uppercase text-white tracking-wider">The Ocean Gym Live Chat</div>
+                        <div class="text-[10px] text-gray-400">Kết nối Học viên, Huấn luyện viên & Ban Quản Trị</div>
+                    </div>
+                </div>
+                <button onclick="toggleChatWidget()" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Messages Stream -->
+            <div id="chat-messages-stream" class="flex-1 p-4 overflow-y-auto space-y-3 bg-black/40 text-xs">
+                <!-- Dynamically rendered -->
+            </div>
+
+            <!-- Chat Input Area -->
+            <form id="chat-input-form" onsubmit="handleSendChatMessage(event)" class="p-3 bg-zinc-900 border-t border-white/10 flex gap-2">
+                <input id="chat-input-text" type="text" placeholder="Nhắn tin cho Admin hoặc Coach..." required class="flex-1 bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-red">
+                <button type="submit" class="px-4 py-2 bg-brand-red text-white font-bold text-xs rounded-lg hover:bg-red-700 transition">
+                    Gửi ↗
                 </button>
             </form>
         </div>
@@ -1428,6 +1814,689 @@
             setActiveFloor(activeFloor);
             handleSearch();
         }
+
+        // ==========================================
+        // THE OCEAN GYM - CORE INTERACTIVE ENGINE
+        // ==========================================
+
+        let activeAuthRole = 'member';
+        let currentReviewRating = 5;
+
+        // Sync Auth UI
+        function updateAuthUI() {
+            if (!window.OceanApp) return;
+            const user = OceanApp.getCurrentUser();
+            const loginBtn = document.getElementById('nav-login-btn');
+            const userMenu = document.getElementById('nav-user-menu');
+            const userName = document.getElementById('nav-user-name');
+            const userBadge = document.getElementById('nav-user-badge');
+            const userAvatar = document.getElementById('nav-user-avatar');
+            const memberLinks = document.getElementById('nav-menu-member-links');
+            const coachLinks = document.getElementById('nav-menu-coach-links');
+            const publisherAvatar = document.getElementById('feed-publisher-avatar');
+            const mobileAuthSection = document.getElementById('mobile-auth-section');
+
+            if (user) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userMenu) userMenu.classList.remove('hidden');
+                if (userName) userName.textContent = user.name;
+                if (userAvatar) userAvatar.src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
+                if (publisherAvatar) publisherAvatar.src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
+
+                if (user.role === 'coach') {
+                    if (userBadge) {
+                        userBadge.textContent = 'COACH';
+                        userBadge.className = 'text-[9px] px-1.5 py-0.5 rounded bg-blue-600 text-white font-extrabold uppercase tracking-wider';
+                    }
+                    if (memberLinks) memberLinks.classList.add('hidden');
+                    if (coachLinks) coachLinks.classList.remove('hidden');
+                } else {
+                    if (userBadge) {
+                        userBadge.textContent = user.plan ? 'HỘI VIÊN' : 'VIP';
+                        userBadge.className = 'text-[9px] px-1.5 py-0.5 rounded bg-brand-red text-white font-extrabold uppercase tracking-wider';
+                    }
+                    if (memberLinks) memberLinks.classList.remove('hidden');
+                    if (coachLinks) coachLinks.classList.add('hidden');
+                }
+
+                if (mobileAuthSection) {
+                    mobileAuthSection.innerHTML = `
+                        <div class="p-3 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120'}" class="w-7 h-7 rounded-full object-cover" />
+                                <div>
+                                    <div class="text-xs font-bold text-white">${user.name}</div>
+                                    <div class="text-[10px] text-gray-400">${user.role === 'coach' ? 'Huấn Luyện Viên' : 'Hội Viên The Ocean'}</div>
+                                </div>
+                            </div>
+                            <button onclick="handleLogout()" class="text-xs text-red-400 font-bold hover:underline">Đăng xuất</button>
+                        </div>
+                    `;
+                }
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (userMenu) userMenu.classList.add('hidden');
+                if (mobileAuthSection) {
+                    mobileAuthSection.innerHTML = `
+                        <button onclick="openAuthModal(); toggleMobileMenu()" class="w-full py-2.5 bg-brand-red text-white font-bold text-xs uppercase tracking-wider text-center rounded">
+                            🔐 Đăng nhập Hội viên / HLV
+                        </button>
+                    `;
+                }
+            }
+        }
+
+        function toggleUserDropdown(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('nav-user-dropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('nav-user-dropdown');
+            const menu = document.getElementById('nav-user-menu');
+            if (dropdown && !dropdown.classList.contains('hidden') && menu && !menu.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Auth Modal controls
+        function openAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (modal) modal.classList.remove('hidden');
+            switchAuthRole('member');
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function switchAuthRole(role) {
+            activeAuthRole = role;
+            const tabMember = document.getElementById('auth-tab-member');
+            const tabCoach = document.getElementById('auth-tab-coach');
+            const label = document.getElementById('auth-username-label');
+            const hint = document.getElementById('auth-hint');
+
+            if (role === 'member') {
+                tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
+                tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
+                label.textContent = 'Số điện thoại hoặc Tên đăng nhập';
+                hint.innerHTML = '💡 <em>Học viên: Đăng nhập bằng Số điện thoại hoặc Username do Admin cấp khi chốt gói.</em>';
+            } else {
+                tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
+                tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
+                label.textContent = 'Tên đăng nhập HLV (hoặc Số điện thoại HLV)';
+                hint.innerHTML = '💡 <em>HLV: Tên tài khoản HLV (VD: <code>coach-hai</code>, <code>coach-thao</code>) • Mật khẩu mặc định: <code>coach123</code>.</em>';
+            }
+            document.getElementById('auth-error').classList.add('hidden');
+        }
+
+        function handleAuthLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errEl = document.getElementById('auth-error');
+
+            const res = OceanApp.login(username, password);
+            if (res.success) {
+                closeAuthModal();
+                updateAuthUI();
+                showToast(`Xin chào ${res.user.name}! Bạn đã đăng nhập thành công.`);
+                if (res.user.role === 'coach') {
+                    openCoachPortalModal();
+                }
+            } else {
+                errEl.textContent = res.error || 'Đăng nhập không thành công.';
+                errEl.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            OceanApp.logout();
+            updateAuthUI();
+            showToast('Bạn đã đăng xuất an toàn.');
+        }
+
+        // Render Dynamic Coaches
+        function renderCoachesGrid() {
+            const container = document.getElementById('coaches-grid');
+            if (!container || !window.OceanApp) return;
+            container.replaceChildren();
+
+            const coaches = OceanApp.getCoaches();
+            const bookingSelect = document.getElementById('booking-coach-select');
+            const reviewSelect = document.getElementById('review-coach-select');
+
+            if (bookingSelect) bookingSelect.replaceChildren();
+            if (reviewSelect) reviewSelect.replaceChildren();
+
+            for (const coach of coaches) {
+                // Card for home page
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="h-72 overflow-hidden relative">
+                            <img src="${coach.img}" alt="${coach.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full">${coach.role}</span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-black uppercase font-display mb-1 text-black">${coach.name}</h3>
+                            <p class="text-sm text-gray-600 mb-3">${coach.desc}</p>
+                            <div class="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                                <span>${coach.exp}</span>
+                                <span>•</span>
+                                <span class="text-brand-red font-bold">${coach.cert || 'HLV Chuyên Nghiệp'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <button onclick="openBookingModal('${coach.id}')" class="w-full py-3 bg-black hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <span>Đặt lịch với ${coach.name}</span> ↗
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                // Populate selects
+                if (bookingSelect) {
+                    const opt = document.createElement('option');
+                    opt.value = coach.id;
+                    opt.textContent = `${coach.name} (${coach.role} - ${coach.exp})`;
+                    bookingSelect.appendChild(opt);
+                }
+                if (reviewSelect) {
+                    const opt = document.createElement('option');
+                    opt.value = coach.name;
+                    opt.textContent = `${coach.name} (${coach.role})`;
+                    reviewSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // Apply Coach Modal
+        function openApplyCoachModal() {
+            document.getElementById('apply-coach-modal').classList.remove('hidden');
+        }
+
+        function closeApplyCoachModal() {
+            document.getElementById('apply-coach-modal').classList.add('hidden');
+        }
+
+        function handleApplyCoachSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('coach-app-name').value.trim();
+            const phone = document.getElementById('coach-app-phone').value.trim();
+            const email = document.getElementById('coach-app-email').value.trim();
+            const role = document.getElementById('coach-app-role').value;
+            const exp = document.getElementById('coach-app-exp').value.trim();
+            const cert = document.getElementById('coach-app-cert').value.trim();
+            const image = document.getElementById('coach-app-image').value.trim();
+            const intro = document.getElementById('coach-app-intro').value.trim();
+
+            OceanApp.submitCoachApplication({
+                name, phone, email, role, exp, cert, image, intro
+            });
+
+            closeApplyCoachModal();
+            e.target.reset();
+            showToast('Hồ sơ ứng tuyển đã được gửi! Ban Quản Trị sẽ duyệt và cấp tài khoản cho bạn.');
+        }
+
+        // Booking Modal
+        function openBookingModal(coachId) {
+            const modal = document.getElementById('booking-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            const select = document.getElementById('booking-coach-select');
+            if (coachId && select) {
+                select.value = coachId;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('booking-date');
+            if (dateInput) {
+                dateInput.min = today;
+                if (!dateInput.value) dateInput.value = today;
+            }
+
+            const user = OceanApp.getCurrentUser();
+            if (user && user.role === 'member') {
+                document.getElementById('booking-member-name').value = user.name;
+                document.getElementById('booking-member-phone').value = user.phone || '';
+            }
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+
+        function handleBookingSubmit(e) {
+            e.preventDefault();
+            const coachId = document.getElementById('booking-coach-select').value;
+            const coach = OceanApp.getCoachById(coachId);
+            const date = document.getElementById('booking-date').value;
+            const timeSlot = document.getElementById('booking-time').value;
+            const memberName = document.getElementById('booking-member-name').value.trim();
+            const memberPhone = document.getElementById('booking-member-phone').value.trim();
+            const note = document.getElementById('booking-note').value.trim();
+
+            const user = OceanApp.getCurrentUser();
+
+            OceanApp.bookSession({
+                memberId: user ? user.id : 'guest_' + Date.now(),
+                memberName,
+                memberPhone,
+                coachId,
+                coachName: coach ? coach.name : 'Huấn luyện viên The Ocean',
+                date,
+                timeSlot,
+                note
+            });
+
+            closeBookingModal();
+            showToast(`Đặt lịch thành công ca ${timeSlot} ngày ${date} cùng ${coach ? coach.name : 'Coach'}!`);
+        }
+
+        // Review Modal
+        function openReviewModal() {
+            const modal = document.getElementById('review-modal');
+            if (modal) modal.classList.remove('hidden');
+            const user = OceanApp.getCurrentUser();
+            if (user) {
+                document.getElementById('review-user-name').value = user.name;
+            }
+            setReviewRating(5);
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+        }
+
+        function setReviewRating(stars) {
+            currentReviewRating = stars;
+            const container = document.getElementById('star-rating-container');
+            const spans = container.querySelectorAll('span:not(#star-rating-label)');
+            spans.forEach((s, idx) => {
+                s.style.color = idx < stars ? '#facc15' : '#4b5563';
+            });
+            const labels = ['', '1 sao (Kém)', '2 sao (Bình thường)', '3 sao (Hài lòng)', '4 sao (Rất tốt)', '5 sao (Xuất sắc)'];
+            document.getElementById('star-rating-label').textContent = labels[stars];
+        }
+
+        function toggleReviewTargetName() {
+            const type = document.getElementById('review-target-type').value;
+            const wrap = document.getElementById('review-coach-select-wrap');
+            if (type === 'coach') {
+                wrap.classList.remove('hidden');
+            } else {
+                wrap.classList.add('hidden');
+            }
+        }
+
+        function handleReviewSubmit(e) {
+            e.preventDefault();
+            const targetType = document.getElementById('review-target-type').value;
+            const targetName = targetType === 'coach'
+                ? document.getElementById('review-coach-select').value
+                : 'Phòng Gym The Ocean';
+            const userName = document.getElementById('review-user-name').value.trim();
+            const comment = document.getElementById('review-comment').value.trim();
+            const image = document.getElementById('review-image').value.trim();
+
+            OceanApp.addReview({
+                userName,
+                rating: currentReviewRating,
+                target: targetType,
+                targetName,
+                comment,
+                image
+            });
+
+            closeReviewModal();
+            e.target.reset();
+            renderReviewsGrid();
+            showToast('Cảm ơn bạn đã gửi đánh giá trải nghiệm!');
+        }
+
+        // Render Reviews Grid
+        function renderReviewsGrid() {
+            const container = document.getElementById('reviews-grid');
+            if (!container || !window.OceanApp) return;
+            container.replaceChildren();
+
+            const reviews = OceanApp.getReviews();
+            for (const r of reviews) {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-6 rounded-2xl space-y-4 border border-white/10 flex flex-col justify-between';
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-yellow-400 text-sm tracking-widest">${'★'.repeat(r.rating)}</span>
+                            <span class="text-[11px] text-gray-400">${r.date}</span>
+                        </div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-brand-red">${r.target === 'coach' ? '👤 HLV: ' + r.targetName : '🏋️ ' + r.targetName}</div>
+                        <p class="text-sm text-gray-300 leading-relaxed font-normal">“${r.comment}”</p>
+                        ${r.image ? `<img src="${r.image}" class="w-full h-40 object-cover rounded-xl border border-white/10 mt-2" />` : ''}
+                    </div>
+                    <div class="pt-4 border-t border-white/10 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-red/30 flex items-center justify-center font-bold text-xs text-white uppercase">${r.userName.charAt(0)}</div>
+                        <div>
+                            <div class="font-bold uppercase text-white text-xs">${r.userName}</div>
+                            <div class="text-[10px] text-gray-400">Hội viên đã xác thực</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // Community Tab & Feed
+        function switchCommunityTab(tab) {
+            const feedBtn = document.getElementById('tab-feed-btn');
+            const reviewsBtn = document.getElementById('tab-reviews-btn');
+            const feedSection = document.getElementById('community-tab-feed');
+            const reviewsSection = document.getElementById('community-tab-reviews');
+
+            if (tab === 'feed') {
+                feedBtn.className = 'px-4 py-2 rounded-lg bg-brand-red text-white text-xs font-bold uppercase tracking-wider transition';
+                reviewsBtn.className = 'px-4 py-2 rounded-lg text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition';
+                feedSection.classList.remove('hidden');
+                reviewsSection.classList.add('hidden');
+            } else {
+                reviewsBtn.className = 'px-4 py-2 rounded-lg bg-brand-red text-white text-xs font-bold uppercase tracking-wider transition';
+                feedBtn.className = 'px-4 py-2 rounded-lg text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wider transition';
+                reviewsSection.classList.remove('hidden');
+                feedSection.classList.add('hidden');
+            }
+        }
+
+        function handlePublishPost() {
+            const content = document.getElementById('feed-post-content').value.trim();
+            const image = document.getElementById('feed-post-image').value.trim();
+            if (!content) {
+                alert('Vui lòng nhập nội dung chia sẻ!');
+                return;
+            }
+
+            const user = OceanApp.getCurrentUser();
+            const authorName = user ? `${user.name} (${user.role === 'coach' ? 'Huấn luyện viên' : 'Hội viên'})` : 'Hội viên The Ocean';
+            const authorRole = user ? user.role : 'member';
+            const authorAvatar = user ? user.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
+
+            OceanApp.addPost({
+                authorName,
+                authorRole,
+                authorAvatar,
+                content,
+                image
+            });
+
+            document.getElementById('feed-post-content').value = '';
+            document.getElementById('feed-post-image').value = '';
+            renderCommunityFeed();
+            showToast('Đã đăng bài viết lên Cộng đồng The Ocean!');
+        }
+
+        function renderCommunityFeed() {
+            const container = document.getElementById('community-posts-container');
+            if (!container || !window.OceanApp) return;
+            container.replaceChildren();
+
+            const posts = OceanApp.getPosts();
+            for (const post of posts) {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-6 rounded-2xl space-y-4 border border-white/10 flex flex-col justify-between';
+                card.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${post.authorAvatar}" class="w-10 h-10 rounded-full object-cover border border-white/20" />
+                            <div>
+                                <div class="font-bold text-white text-sm flex items-center gap-2">
+                                    <span>${post.authorName}</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-red text-white font-extrabold uppercase">Check-in</span>
+                                </div>
+                                <div class="text-[11px] text-gray-400">${post.time} • The Ocean Gym Studio</div>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-200 leading-relaxed font-normal">${post.content}</p>
+
+                        ${post.image ? `<img src="${post.image}" class="w-full h-64 object-cover rounded-xl border border-white/10" />` : ''}
+                    </div>
+
+                    <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+                        <button onclick="handleLikePost('${post.id}')" class="flex items-center gap-1.5 text-xs font-bold ${post.liked ? 'text-red-500' : 'text-gray-400 hover:text-white'} transition">
+                            <span>${post.liked ? '❤️' : '🤍'}</span>
+                            <span>${post.likes} Yêu thích</span>
+                        </button>
+                        <span class="text-xs text-gray-400">${post.comments.length} bình luận</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function handleLikePost(postId) {
+            OceanApp.toggleLikePost(postId);
+            renderCommunityFeed();
+        }
+
+        // Coach Portal
+        function openCoachPortalModal(initialTab = 'bookings') {
+            const user = OceanApp.getCurrentUser();
+            if (!user || user.role !== 'coach') {
+                openAuthModal();
+                switchAuthRole('coach');
+                return;
+            }
+
+            const coach = OceanApp.getCoachById(user.id) || user;
+            document.getElementById('coach-portal-name').textContent = coach.name;
+            document.getElementById('coach-portal-role').textContent = `${coach.coachRole || coach.role} • ${coach.exp}`;
+            document.getElementById('coach-portal-avatar').src = coach.img || coach.avatar || '';
+
+            // Pre-fill profile form
+            document.getElementById('edit-coach-cert').value = coach.cert || '';
+            document.getElementById('edit-coach-exp').value = coach.exp || '';
+            document.getElementById('edit-coach-desc').value = coach.desc || '';
+            document.getElementById('edit-coach-img').value = coach.img || '';
+
+            // Render bookings for this coach
+            const allBookings = OceanApp.getBookings();
+            const myBookings = allBookings.filter(b => b.coachId === coach.id || b.coachName.includes(coach.name));
+            document.getElementById('coach-booking-count').textContent = `${myBookings.length} ca tập`;
+
+            const list = document.getElementById('coach-bookings-list');
+            list.replaceChildren();
+            if (!myBookings.length) {
+                list.innerHTML = `<div class="p-6 bg-white/5 rounded-xl text-center text-xs text-gray-400">Chưa có học viên nào đặt lịch với bạn trong khung giờ này.</div>`;
+            } else {
+                for (const b of myBookings) {
+                    const item = document.createElement('div');
+                    item.className = 'p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                    item.innerHTML = `
+                        <div>
+                            <div class="font-bold text-white text-sm">${b.memberName}</div>
+                            <div class="text-xs text-gray-400">SĐT: <a href="tel:${b.memberPhone}" class="text-cyan-400">${b.memberPhone}</a></div>
+                            <div class="text-xs text-gray-300 mt-1">Mục tiêu: <span class="text-yellow-400">${b.note || 'Tập cá nhân'}</span></div>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <div class="text-xs font-bold text-brand-red">${b.date}</div>
+                            <div class="text-xs text-white font-bold">${b.timeSlot}</div>
+                            <span class="inline-block px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold mt-1">Đã chốt lịch</span>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                }
+            }
+
+            switchCoachPortalTab(initialTab);
+            document.getElementById('coach-portal-modal').classList.remove('hidden');
+        }
+
+        function closeCoachPortalModal() {
+            document.getElementById('coach-portal-modal').classList.add('hidden');
+        }
+
+        function switchCoachPortalTab(tab) {
+            const btnBookings = document.getElementById('cptab-btn-bookings');
+            const btnCert = document.getElementById('cptab-btn-cert');
+            const contentBookings = document.getElementById('cptab-content-bookings');
+            const contentCert = document.getElementById('cptab-content-cert');
+
+            if (tab === 'bookings' || tab === 'schedule') {
+                btnBookings.className = 'px-4 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider';
+                btnCert.className = 'px-4 py-2 rounded-lg text-gray-400 hover:text-white font-bold text-xs uppercase tracking-wider';
+                contentBookings.classList.remove('hidden');
+                contentCert.classList.add('hidden');
+            } else {
+                btnCert.className = 'px-4 py-2 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-wider';
+                btnBookings.className = 'px-4 py-2 rounded-lg text-gray-400 hover:text-white font-bold text-xs uppercase tracking-wider';
+                contentCert.classList.remove('hidden');
+                contentBookings.classList.add('hidden');
+            }
+        }
+
+        function handleUpdateCoachProfile(e) {
+            e.preventDefault();
+            const user = OceanApp.getCurrentUser();
+            if (!user) return;
+
+            const cert = document.getElementById('edit-coach-cert').value.trim();
+            const exp = document.getElementById('edit-coach-exp').value.trim();
+            const desc = document.getElementById('edit-coach-desc').value.trim();
+            const img = document.getElementById('edit-coach-img').value.trim();
+
+            OceanApp.updateCoachProfile(user.id, { cert, exp, desc, img });
+            renderCoachesGrid();
+            showToast('Đã cập nhật bằng cấp & bio thành công! Thông tin đã đồng bộ lên trang web.');
+        }
+
+        // Member Portal
+        function openMemberPortalModal() {
+            const user = OceanApp.getCurrentUser();
+            if (!user || user.role !== 'member') {
+                openAuthModal();
+                return;
+            }
+
+            document.getElementById('member-portal-name').textContent = user.name;
+            document.getElementById('member-portal-plan').textContent = user.plan || 'HỘI VIÊN VIP';
+            document.getElementById('member-portal-phone').textContent = `Số điện thoại: ${user.phone || 'Chưa cập nhật'}`;
+            document.getElementById('member-portal-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
+
+            const allBookings = OceanApp.getBookings();
+            const myBookings = allBookings.filter(b => b.memberId === user.id || b.memberPhone === user.phone);
+
+            const list = document.getElementById('member-bookings-list');
+            list.replaceChildren();
+
+            if (!myBookings.length) {
+                list.innerHTML = `<div class="p-6 bg-white/5 rounded-xl text-center text-xs text-gray-400">Bạn chưa có lịch tập nào. Bấm nút bên trên để book lịch với Huấn luyện viên!</div>`;
+            } else {
+                for (const b of myBookings) {
+                    const item = document.createElement('div');
+                    item.className = 'p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                    item.innerHTML = `
+                        <div>
+                            <div class="font-bold text-white text-sm">Huấn luyện viên: <span class="text-cyan-400">${b.coachName}</span></div>
+                            <div class="text-xs text-gray-300 mt-1">Mục tiêu: ${b.note || 'Buổi tập 1 kèm 1'}</div>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <div class="text-xs font-bold text-brand-red">${b.date}</div>
+                            <div class="text-xs text-white font-bold">${b.timeSlot}</div>
+                            <span class="inline-block px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold mt-1">Đã xác nhận</span>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                }
+            }
+
+            document.getElementById('member-portal-modal').classList.remove('hidden');
+        }
+
+        function closeMemberPortalModal() {
+            document.getElementById('member-portal-modal').classList.add('hidden');
+        }
+
+        // Live Chat Widget
+        function toggleChatWidget() {
+            const chatWindow = document.getElementById('chat-box-window');
+            if (chatWindow) {
+                chatWindow.classList.toggle('hidden');
+                if (!chatWindow.classList.contains('hidden')) {
+                    renderChatWidget();
+                    const dot = document.getElementById('chat-unread-dot');
+                    if (dot) dot.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderChatWidget() {
+            const container = document.getElementById('chat-messages-stream');
+            if (!container || !window.OceanApp) return;
+            container.replaceChildren();
+
+            const user = OceanApp.getCurrentUser();
+            const chats = OceanApp.getChats();
+
+            for (const msg of chats) {
+                const isMe = user && msg.senderId === user.id;
+                const isAdmin = msg.senderRole === 'admin';
+                const msgBox = document.createElement('div');
+                msgBox.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+
+                const badge = isAdmin ? '<span class="text-brand-red font-black">ADMIN</span>' : `<span class="text-gray-400 uppercase font-semibold">${msg.senderRole}</span>`;
+
+                msgBox.innerHTML = `
+                    <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
+                        <span class="font-bold text-white">${msg.senderName}</span>
+                        ${badge}
+                        <span>• ${msg.time}</span>
+                    </div>
+                    <div class="p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed ${isMe ? 'bg-brand-red text-white rounded-br-none' : 'bg-white/10 text-gray-200 border border-white/10 rounded-bl-none'}">
+                        ${msg.text}
+                    </div>
+                `;
+                container.appendChild(msgBox);
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleSendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input-text');
+            const text = input.value.trim();
+            if (!text || !window.OceanApp) return;
+
+            const user = OceanApp.getCurrentUser() || {
+                id: 'guest_' + Date.now(),
+                name: 'Khách tham quan',
+                role: 'guest'
+            };
+
+            OceanApp.sendMessage(user, text);
+            input.value = '';
+            renderChatWidget();
+        }
+
+        // Initialize Everything
+        window.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            renderCoachesGrid();
+            renderCommunityFeed();
+            renderReviewsGrid();
+        });
+
+        window.addEventListener('ocean:auth-changed', updateAuthUI);
+        window.addEventListener('ocean:coaches-updated', renderCoachesGrid);
+        window.addEventListener('ocean:posts-updated', renderCommunityFeed);
+        window.addEventListener('ocean:reviews-updated', renderReviewsGrid);
+        window.addEventListener('ocean:chats-updated', renderChatWidget);
 
         setLanguage('vi');
     </script>

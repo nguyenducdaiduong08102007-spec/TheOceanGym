@@ -18,13 +18,102 @@ create table if not exists public.rate_limits (
     attempts integer not null check (attempts >= 1)
 );
 
+create table if not exists public.members (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    phone text not null,
+    plan text not null default 'Gói Cơ Bản',
+    username text not null unique,
+    password text not null,
+    created_at timestamptz not null default now()
+);
+
+create table if not exists public.coaches (
+    id text primary key,
+    name text not null,
+    role text not null,
+    bio text not null default '',
+    experience text not null default '',
+    certificates text not null default '',
+    image_url text not null default '',
+    phone text not null default '',
+    email text not null default '',
+    password text not null default 'coach123',
+    status text not null default 'active',
+    created_at timestamptz not null default now()
+);
+
+create table if not exists public.coach_applications (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    phone text not null,
+    email text not null default '',
+    role_applied text not null,
+    experience text not null,
+    certificates text not null default '',
+    image_url text not null default '',
+    intro text not null default '',
+    status text not null default 'pending',
+    applied_at timestamptz not null default now()
+);
+
+create table if not exists public.bookings (
+    id uuid primary key default gen_random_uuid(),
+    member_name text not null,
+    member_phone text not null,
+    coach_id text not null,
+    coach_name text not null,
+    booking_date date not null,
+    time_slot text not null,
+    note text not null default '',
+    status text not null default 'confirmed',
+    created_at timestamptz not null default now()
+);
+
+create table if not exists public.reviews (
+    id uuid primary key default gen_random_uuid(),
+    user_name text not null,
+    rating integer not null check (rating between 1 and 5),
+    target_type text not null default 'gym',
+    target_name text not null default 'Phòng Gym The Ocean',
+    comment text not null,
+    image_url text not null default '',
+    created_at timestamptz not null default now()
+);
+
+create table if not exists public.community_posts (
+    id uuid primary key default gen_random_uuid(),
+    author_name text not null,
+    author_role text not null default 'member',
+    content text not null,
+    image_url text not null default '',
+    likes integer not null default 0,
+    created_at timestamptz not null default now()
+);
+
+create table if not exists public.messages (
+    id uuid primary key default gen_random_uuid(),
+    sender_name text not null,
+    sender_role text not null default 'member',
+    target_id text not null default 'all',
+    content text not null,
+    sent_at timestamptz not null default now()
+);
+
 alter table public.registrations enable row level security;
 alter table public.revenue enable row level security;
 alter table public.rate_limits enable row level security;
+alter table public.members enable row level security;
+alter table public.coaches enable row level security;
+alter table public.coach_applications enable row level security;
+alter table public.bookings enable row level security;
+alter table public.reviews enable row level security;
+alter table public.community_posts enable row level security;
+alter table public.messages enable row level security;
 
-revoke all on public.registrations, public.revenue, public.rate_limits from anon, authenticated;
-grant select, insert on public.registrations, public.revenue to service_role;
-grant select, insert, update, delete on public.rate_limits to service_role;
+revoke all on public.registrations, public.revenue, public.rate_limits, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages from anon, authenticated;
+grant select, insert on public.registrations, public.revenue, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages to service_role;
+grant update, delete on public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages, public.rate_limits to service_role;
 
 create or replace function public.consume_rate_limit(
     p_key text,
