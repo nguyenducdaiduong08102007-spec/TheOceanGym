@@ -51,6 +51,15 @@
             overflow-x: hidden;
         }
 
+        select {
+            color-scheme: dark;
+        }
+
+        select option {
+            background-color: #18181B;
+            color: #FFFFFF;
+        }
+
         .hero-title {
             font-family: 'Inter', 'Be Vietnam Pro', sans-serif;
             letter-spacing: -0.02em;
@@ -861,7 +870,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Vị trí ứng tuyển *</label>
-                        <select id="coach-app-role" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <select id="coach-app-role" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
                             <option value="STRENGTH COACH">STRENGTH COACH (Sức mạnh & Tăng cơ)</option>
                             <option value="REHAB COACH">REHAB COACH (Phục hồi chức năng & Tư thế)</option>
                             <option value="FAT LOSS COACH">FAT LOSS COACH (Giảm mỡ & Thể trạng)</option>
@@ -913,7 +922,7 @@
             <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chọn Huấn luyện viên *</label>
-                    <select id="booking-coach-select" required class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <select id="booking-coach-select" required class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                         <!-- Populated dynamically -->
                     </select>
                 </div>
@@ -925,7 +934,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Khung giờ tập *</label>
-                        <select id="booking-time" required class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <select id="booking-time" required class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
                             <option value="07:00 - 08:30 (Sáng sớm)">07:00 - 08:30 (Sáng sớm)</option>
                             <option value="09:00 - 10:30 (Sáng)">09:00 - 10:30 (Sáng)</option>
                             <option value="14:00 - 15:30 (Chiều)">14:00 - 15:30 (Chiều)</option>
@@ -972,7 +981,7 @@
             <form id="review-form" onsubmit="handleReviewSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Đối tượng đánh giá *</label>
-                    <select id="review-target-type" onchange="toggleReviewTargetName()" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <select id="review-target-type" onchange="toggleReviewTargetName()" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                         <option value="gym">Đánh giá Cơ sở vật chất & Không gian Phòng Gym</option>
                         <option value="coach">Đánh giá Huấn luyện viên (Personal Trainer)</option>
                     </select>
@@ -980,7 +989,7 @@
 
                 <div id="review-coach-select-wrap" class="hidden">
                     <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chọn Huấn luyện viên</label>
-                    <select id="review-coach-select" class="w-full bg-zinc-800 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <select id="review-coach-select" class="w-full bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-red">
                         <!-- Populated dynamically -->
                     </select>
                 </div>
@@ -1310,22 +1319,34 @@
             const submitButton = form.querySelector('button[type="submit"]');
             error.classList.add('hidden');
             submitButton.disabled = true;
+
+            const name = form.elements.name.value.trim();
+            const phone = form.elements.phone.value.trim();
+            const goal = form.elements.goal.value;
+
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: form.elements.name.value.trim(),
-                        phone: form.elements.phone.value.trim(),
-                        goal: form.elements.goal.value
-                    })
+                    body: JSON.stringify({ name, phone, goal })
                 });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || i18n[activeLanguage].form_error);
+                if (window.OceanApp && typeof OceanApp.saveRegistration === 'function') {
+                    OceanApp.saveRegistration({ name, phone, goal });
+                }
                 form.reset();
                 closeModal('register');
                 showToast(i18n[activeLanguage].form_success);
             } catch (requestError) {
+                // Seamless fallback: If backend server or Supabase is not connected yet, save locally
+                if (window.OceanApp && typeof OceanApp.saveRegistration === 'function') {
+                    OceanApp.saveRegistration({ name, phone, goal });
+                    form.reset();
+                    closeModal('register');
+                    showToast(i18n[activeLanguage].form_success);
+                    return;
+                }
                 error.textContent = requestError.message === 'Failed to fetch'
                     ? i18n[activeLanguage].server_unavailable
                     : requestError.message;

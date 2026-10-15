@@ -14,6 +14,7 @@
     const STORAGE_KEY_REVIEWS = 'theocean_reviews';
     const STORAGE_KEY_POSTS = 'theocean_community_posts';
     const STORAGE_KEY_CHATS = 'theocean_chats';
+    const STORAGE_KEY_REGISTRATIONS = 'theocean_registrations';
     const STORAGE_KEY_CURRENT_USER = 'theocean_current_user';
 
     // Initial default Coaches
@@ -175,6 +176,34 @@
         saveBookings(bookings) {
             saveStorage(STORAGE_KEY_BOOKINGS, bookings);
             window.dispatchEvent(new CustomEvent('ocean:bookings-updated', { detail: bookings }));
+        },
+
+        getRegistrations() {
+            let regs = loadStorage(STORAGE_KEY_REGISTRATIONS, null);
+            if (!regs || !regs.length) {
+                regs = [
+                    { id: 'lead-1', name: 'Tiết Lê', phone: '0909007774', goal: 'unspecified', submittedAt: new Date(Date.now() - 3600000 * 2).toISOString() },
+                    { id: 'lead-2', name: 'Nguyen Duc Dai Duong', phone: '0917451448', goal: 'muscle_gain', submittedAt: new Date(Date.now() - 3600000 * 5).toISOString() },
+                    { id: 'lead-3', name: 'Trần Minh Quang', phone: '0988112233', goal: 'fat_loss', submittedAt: new Date(Date.now() - 3600000 * 12).toISOString() }
+                ];
+                saveStorage(STORAGE_KEY_REGISTRATIONS, regs);
+            }
+            return regs;
+        },
+
+        saveRegistration(lead) {
+            const regs = this.getRegistrations();
+            const newLead = {
+                id: 'lead-' + Date.now(),
+                name: lead.name,
+                phone: lead.phone,
+                goal: lead.goal || 'unspecified',
+                submittedAt: new Date().toISOString()
+            };
+            regs.unshift(newLead);
+            saveStorage(STORAGE_KEY_REGISTRATIONS, regs);
+            window.dispatchEvent(new CustomEvent('ocean:registrations-updated', { detail: regs }));
+            return newLead;
         },
 
         getReviews() {

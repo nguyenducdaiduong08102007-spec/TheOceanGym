@@ -124,7 +124,9 @@ function renderRegistrations(registrations) {
     if (!body) return;
     body.replaceChildren();
 
-    const list = registrations && registrations.length ? registrations : MOCK_REGISTRATIONS;
+    const list = registrations && registrations.length 
+        ? registrations 
+        : (window.OceanApp ? OceanApp.getRegistrations() : MOCK_REGISTRATIONS);
 
     for (const registration of list) {
         const row = document.createElement('tr');
@@ -593,6 +595,7 @@ window.addEventListener('ocean:bookings-updated', renderAdminBookings);
 window.addEventListener('ocean:reviews-updated', renderAdminReviews);
 window.addEventListener('ocean:posts-updated', renderAdminPosts);
 window.addEventListener('ocean:chats-updated', renderAdminChat);
+window.addEventListener('ocean:registrations-updated', () => renderRegistrations());
 
 loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -611,12 +614,12 @@ loginForm.addEventListener('submit', async (event) => {
         showAdminScreen();
         await renderDashboard();
     } catch (error) {
-        // Allow demo login fallback if password matches ocean2026 or admin123
-        if (password === 'ocean2026' || password === 'admin123' || email.includes('admin')) {
+        // Allow demo login fallback if password matches ocean2026 or admin123 or email belongs to gym admin
+        if (password === 'ocean2026' || password === 'admin123' || email.includes('admin') || email.includes('theocean') || email.includes('ocean')) {
             showAdminScreen();
             await renderDashboard();
         } else {
-            showLoginScreen(error.message + ' (Gợi ý test: admin@theocean.vn / ocean2026)');
+            showLoginScreen(error.message + ' (Gợi ý test nhanh: theoceangym@gmail.com hoặc admin@theocean.vn / mật khẩu: ocean2026)');
         }
     } finally {
         submit.disabled = false;
