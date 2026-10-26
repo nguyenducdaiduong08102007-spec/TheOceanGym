@@ -273,6 +273,12 @@
             margin-top: 28px;
         }
 
+        .admin-chat-layout {
+            display: grid;
+            grid-template-columns: minmax(190px, 0.7fr) minmax(0, 1.6fr);
+            gap: 12px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -280,6 +286,25 @@
         }
 
         .panel { overflow-x: auto; }
+
+        .member-account-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .member-account-table th:last-child,
+        .member-account-table td.account-actions-cell {
+            position: sticky;
+            right: 0;
+            z-index: 1;
+            background: var(--panel);
+            white-space: nowrap;
+            box-shadow: -10px 0 14px rgba(0,0,0,0.28);
+        }
+
+        .member-account-table th:last-child {
+            z-index: 2;
+        }
 
         th, td {
             text-align: left;
@@ -340,86 +365,11 @@
             border-radius: inherit;
         }
 
-        .login-shell {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 32px 16px;
-        }
-
-        .login-card {
-            width: min(100%, 440px);
-            background: rgba(24,24,24,0.9);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 28px 24px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.35);
-        }
-
-        .login-card h1 {
-            margin: 8px 0 10px;
-            font-size: clamp(1.8rem, 2vw, 2.2rem);
-            letter-spacing: -0.06em;
-        }
-
-        .login-subtitle {
-            color: var(--muted);
-            margin-bottom: 22px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            color: var(--muted);
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-size: 15px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: rgba(229,9,20,0.8);
-            box-shadow: 0 0 0 3px rgba(229,9,20,0.12);
-        }
-
-        .login-error {
-            margin-top: 12px;
-            color: #fca5a5;
-            background: rgba(127,29,29,0.2);
-            border: 1px solid rgba(127,29,29,0.7);
-            padding: 10px 12px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .demo-box {
-            margin-top: 18px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed var(--border);
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
         @media (max-width: 860px) {
             .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .two-col { grid-template-columns: 1fr; }
+            .admin-chat-layout { grid-template-columns: 1fr; }
+            #adminChatConversations { max-height: 160px !important; }
             .hero { flex-direction: column; align-items: start; }
         }
 
@@ -430,35 +380,6 @@
     </style>
 </head>
 <body>
-    <div id="login-screen" class="login-shell">
-        <div class="login-card">
-            <div class="brand"><strong>The</strong> Ocean <span style="color: var(--muted);">Admin</span></div>
-            <h1>Đăng nhập quản trị</h1>
-            <p class="login-subtitle">Quản lý doanh thu, hội viên và hiệu suất gym.</p>
-
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <label for="admin-email">Email</label>
-                    <input id="admin-email" type="email" autocomplete="username" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="admin-password">Mật khẩu</label>
-                    <input id="admin-password" type="password" autocomplete="current-password" required />
-                </div>
-
-                <button type="submit" class="primary-btn" style="width: 100%; padding: 14px 18px; font-size: 12px;">Đăng nhập</button>
-                <div id="login-error" class="login-error" role="alert"></div>
-            </form>
-
-            <div class="demo-box" style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; line-height: 1.6; color: var(--muted);">
-                💡 <strong>Tài khoản Quản trị viên (Demo / Chấm điểm):</strong><br>
-                • Email: <code style="color: #fff; background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px;">theoceangym@gmail.com</code> hoặc <code style="color: #fff; background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px;">admin@theocean.vn</code><br>
-                • Mật khẩu: <code style="color: #fff; background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px;">ocean2026</code>
-            </div>
-        </div>
-    </div>
-
     <div id="admin-screen" class="page-shell hidden">
         <header class="topbar">
             <div class="topbar-inner">
@@ -554,20 +475,21 @@
                     <div class="panel-header">
                         <div>
                             <h2>Danh sách Học viên đã cấp tài khoản</h2>
-                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Tài khoản đăng nhập hệ thống The Ocean Gym cho khách hàng chốt gói</p>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Dùng cột Thao tác bên phải để vô hiệu hóa, kích hoạt lại hoặc xóa tài khoản.</p>
                         </div>
                         <button type="button" class="primary-btn" onclick="openManualCreateMemberModal()">+ Thêm học viên trực tiếp</button>
                     </div>
-                    <table>
+                    <table class="member-account-table">
                         <thead>
                             <tr>
                                 <th>Học viên</th>
                                 <th>Số điện thoại</th>
                                 <th>Gói tập</th>
                                 <th>Tên đăng nhập</th>
-                                <th>Mật khẩu</th>
+                                <th>Bảo mật mật khẩu</th>
                                 <th>Ngày cấp</th>
                                 <th>Trạng thái</th>
+                                <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="activeMembersTable"></tbody>
@@ -661,7 +583,7 @@
 
             <!-- TAB 5: CHAT HỖ TRỢ TRỰC TUYẾN -->
             <div id="tab-chat" class="admin-tab-content hidden">
-                <div class="panel" style="max-width: 800px; margin: 0 auto;">
+                <div class="panel" style="max-width: 1000px; margin: 0 auto;">
                     <div class="panel-header">
                         <div>
                             <h2>Hộp thư hỗ trợ trực tiếp (Admin & Coaches & Members)</h2>
@@ -669,11 +591,16 @@
                         </div>
                         <span class="status-pill"><span class="status-dot"></span> Trực tuyến</span>
                     </div>
-                    <div id="adminChatMessages" style="height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;"></div>
-                    <form id="adminChatForm" onsubmit="handleAdminSendMessage(event)" style="display: flex; gap: 10px;">
-                        <input id="adminChatInput" type="text" placeholder="Nhập tin nhắn phản hồi từ Admin..." required style="flex: 1; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);" />
-                        <button type="submit" class="primary-btn">Gửi tin ↗</button>
-                    </form>
+                    <div class="admin-chat-layout">
+                        <div id="adminChatConversations" aria-label="Danh sách hội thoại" style="border: 1px solid var(--border); border-radius: 12px; padding: 8px; background: rgba(0,0,0,0.3); overflow-y: auto; max-height: 480px;"></div>
+                        <div style="min-width: 0;">
+                            <div id="adminChatMessages" aria-live="polite" style="height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;"></div>
+                            <form id="adminChatForm" onsubmit="handleAdminSendMessage(event)" style="display: flex; gap: 10px;">
+                                <input id="adminChatInput" type="text" maxlength="2000" placeholder="Chọn hội thoại để trả lời..." required disabled style="flex: 1; min-width: 0; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);" />
+                                <button type="submit" class="primary-btn" disabled>Gửi tin ↗</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -728,10 +655,10 @@
     <div id="credential-popup-modal" class="hidden" role="dialog" aria-modal="true" style="position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 20px;">
         <div class="login-card" style="width: min(100%, 460px); text-align: center;">
             <div style="font-size: 40px; margin-bottom: 10px;">🎉</div>
-            <h2 style="margin: 0 0 8px; font-size: 1.4rem; color: var(--green);">Cấp tài khoản thành công!</h2>
-            <p style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Sao chép tin nhắn bên dưới để gửi cho Học viên qua Zalo / SMS:</p>
+            <h2 id="credential-popup-title" style="margin: 0 0 8px; font-size: 1.4rem; color: var(--green);">Cấp tài khoản thành công!</h2>
+            <p id="credential-popup-description" style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Sao chép tin nhắn bên dưới để gửi cho người nhận qua Zalo / SMS:</p>
             
-            <textarea id="credentialCopyText" readonly rows="6" style="width: 100%; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: #fff; padding: 12px; font-family: monospace; font-size: 13px; resize: none;"></textarea>
+            <textarea id="credentialCopyText" readonly rows="10" style="width: 100%; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: #fff; padding: 12px; font-family: monospace; font-size: 13px; resize: vertical;"></textarea>
             
             <div style="display: flex; gap: 10px; margin-top: 18px;">
                 <button type="button" class="secondary-btn" style="flex: 1;" onclick="closeCredentialModal()">Xong</button>

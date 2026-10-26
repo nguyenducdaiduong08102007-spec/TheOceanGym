@@ -10,14 +10,14 @@
     <meta name="keywords" content="gym thủ đức, private gym tphcm, phòng gym riêng tư, tập gym 1 kèm 1, the ocean gym, gym hcm, huấn luyện viên cá nhân">
     <meta name="author" content="The Ocean Gym Thu Duc">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://cute-arithmetic-9742f0.netlify.app/html/index.html">
+    <link rel="canonical" href="https://theoceangym.netlify.app/html/index.html">
 
     <!-- SEO: Open Graph / Facebook / Zalo -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://cute-arithmetic-9742f0.netlify.app/html/index.html">
+    <meta property="og:url" content="https://theoceangym.netlify.app/html/index.html">
     <meta property="og:title" content="THE OCEAN GYM - Private Gym Tại Thủ Đức">
     <meta property="og:description" content="Private gym cao cấp tại Thủ Đức. Tập luyện riêng tư 1 kèm 1, 4 tầng chuyên biệt, HLV chứng chỉ quốc tế. Không giờ cao điểm, không chen chúc.">
-    <meta property="og:image" content="https://cute-arithmetic-9742f0.netlify.app/assets/images/gym-floor-strength.jpg">
+    <meta property="og:image" content="https://theoceangym.netlify.app/assets/images/gym-floor-strength.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="vi_VN">
@@ -27,7 +27,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="THE OCEAN GYM - Private Gym Tại Thủ Đức">
     <meta name="twitter:description" content="Private gym cao cấp tại Thủ Đức. Tập luyện riêng tư 1 kèm 1, 4 tầng chuyên biệt, HLV chứng chỉ quốc tế.">
-    <meta name="twitter:image" content="https://cute-arithmetic-9742f0.netlify.app/assets/images/gym-floor-strength.jpg">
+    <meta name="twitter:image" content="https://theoceangym.netlify.app/assets/images/gym-floor-strength.jpg">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0A0A'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='14' fill='%23E50914'%3ETO%3C/text%3E%3C/svg%3E">
@@ -51,6 +51,26 @@
             overflow-x: hidden;
         }
 
+        #chat-widget-container {
+            position: fixed;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            z-index: 40;
+        }
+
+        #chat-toggle-btn {
+            min-height: 3rem;
+            padding: 0.875rem 1.25rem;
+        }
+
+        #chat-box-window {
+            position: absolute;
+            right: 0;
+            bottom: 4rem;
+            width: min(24rem, 92vw);
+            height: min(30rem, calc(100vh - 7rem));
+        }
+
         select {
             color-scheme: dark;
         }
@@ -63,6 +83,19 @@
         .hero-title {
             font-family: 'Inter', 'Be Vietnam Pro', sans-serif;
             letter-spacing: -0.02em;
+        }
+
+        .auth-role-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .auth-role-tabs > button {
+            width: 100%;
+            min-width: 0;
+            padding: 0.625rem 0.5rem;
+            text-align: center;
         }
 
         .tracking-eyebrow {
@@ -155,25 +188,24 @@
                             <span id="nav-user-name" class="text-xs font-bold text-white max-w-[100px] truncate">Hội viên</span>
                             <span id="nav-user-badge" class="text-[9px] px-1.5 py-0.5 rounded bg-brand-red text-white font-extrabold uppercase tracking-wider">VIP</span>
                         </button>
-                        <div id="nav-user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1">
+                        <div id="nav-user-dropdown" class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1">
                             <div id="nav-menu-member-links">
                                 <button onclick="openBookingModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Đặt lịch với HLV</button>
                                 <button onclick="openMemberPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📋 Lịch tập của tôi</button>
+                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💬 Hộp thư & Chat</button>
                                 <button onclick="openReviewModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">⭐ Đánh giá Phòng & HLV</button>
                             </div>
                             <div id="nav-menu-coach-links" class="hidden">
                                 <button onclick="openCoachPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💪 Cổng Huấn Luyện Viên</button>
                                 <button onclick="openCoachPortalModal('schedule'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Ai đã đặt lịch / Ca dạy</button>
+                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💬 Hộp thư & Chat</button>
                                 <button onclick="openCoachPortalModal('cert'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">🎓 Cập nhật bằng cấp & bio</button>
                             </div>
+                            <button onclick="openAccountSettings(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">🔐 Đổi tên đăng nhập / mật khẩu</button>
                             <button onclick="handleLogout(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-red-400 hover:bg-red-500/10 border-t border-white/10 flex items-center gap-2 mt-1">🚪 Đăng xuất</button>
                         </div>
                     </div>
                 </div>
-
-                <a href="admin.html" class="hidden sm:inline-flex items-center justify-center px-3 py-2 rounded border border-white/15 bg-white/5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-200 hover:bg-white hover:text-black transition">
-                    Admin
-                </a>
 
                 <!-- Language Switcher VI / EN -->
                 <div class="flex items-center bg-white/10 p-1 rounded-md text-xs font-semibold uppercase tracking-wider">
@@ -202,11 +234,10 @@
             <a href="#khong-gian" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white" data-i18n="nav_space">Không Gian</a>
             <a href="#cong-dong" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white" data-i18n="nav_community">Cộng Đồng</a>
             <a href="#bang-gia" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white" data-i18n="nav_pricing">Bảng Giá</a>
-            <a href="admin.html" onclick="toggleMobileMenu()" class="block text-base font-medium text-gray-200 hover:text-white">Admin</a>
             <div class="pt-4 border-t border-white/10 flex flex-col gap-3">
                 <div id="mobile-auth-section">
                     <button onclick="openAuthModal(); toggleMobileMenu()" class="w-full py-2.5 bg-brand-red text-white font-bold text-xs uppercase tracking-wider text-center rounded">
-                        🔐 Đăng nhập Hội viên / HLV
+                        🔐 Đăng nhập
                     </button>
                 </div>
                 <button onclick="openModal('register'); toggleMobileMenu()" class="w-full py-3 bg-white text-black font-semibold text-xs uppercase tracking-wider text-center rounded">
@@ -236,7 +267,7 @@
                 </p>
 
                 <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tight hero-title leading-tight" data-i18n="hero_title">
-                    PRIVATE GYM TẠI THỦ ĐỨC.
+                    PRIVATE GYM TẠI THỦ&nbsp;ĐỨC.
                 </h1>
 
                 <p class="text-base sm:text-lg text-gray-300 font-normal max-w-2xl leading-relaxed" data-i18n="hero_desc">
@@ -541,7 +572,7 @@
                     <p class="text-sm text-gray-600 max-w-md mt-2" data-i18n="coaches_desc">Mỗi chương trình đều do coach có tư duy cá nhân hóa, theo dõi định kỳ và chỉnh form sát từng buổi tập.</p>
                 </div>
                 <div class="mt-6 md:mt-0 flex flex-wrap gap-3">
-                    <button onclick="openApplyCoachModal()" class="px-5 py-3 bg-black text-white hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-md flex items-center gap-2">
+                    <button id="apply-coach-cta" onclick="openApplyCoachModal()" class="px-5 py-3 bg-black text-white hover:bg-zinc-800 text-xs font-bold uppercase tracking-wider rounded-lg transition shadow-md flex items-center gap-2">
                         <span>📝 Ứng tuyển Huấn Luyện Viên</span> ↗
                     </button>
                     <button onclick="openBookingModal()" class="px-5 py-3 border border-black text-black hover:bg-black hover:text-white text-xs font-bold uppercase tracking-wider rounded-lg transition">
@@ -806,11 +837,11 @@
             <div class="text-center mb-6">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">HỆ THỐNG NỘI BỘ THE OCEAN</span>
                 <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐĂNG NHẬP</h3>
-                <p class="text-xs text-gray-400 mt-1">Dành cho Học viên & Huấn luyện viên đã được Admin cấp tài khoản.</p>
+                <p class="text-xs text-gray-400 mt-1">Dành cho Học viên, Huấn luyện viên và quản trị viên.</p>
             </div>
 
             <!-- Role Tabs -->
-            <div class="flex bg-black/40 p-1 rounded-lg border border-white/10 mb-5">
+            <div class="auth-role-tabs bg-black/40 p-1 rounded-lg border border-white/10 mb-5">
                 <button type="button" id="auth-tab-member" onclick="switchAuthRole('member')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition">Hội Viên</button>
                 <button type="button" id="auth-tab-coach" onclick="switchAuthRole('coach')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition">Huấn Luyện Viên</button>
             </div>
@@ -827,13 +858,53 @@
 
                 <div id="auth-hint" class="p-3 bg-white/5 border border-white/10 rounded-lg text-[11px] text-gray-400 leading-relaxed">
                     💡 <em>Học viên: Tài khoản do Admin cấp khi chốt gói tập.</em><br>
-                    💡 <em>HLV: Mặc định pass <code>coach123</code> (hoặc pass do Admin cấp sau khi duyệt apply).</em>
+                    💡 <em>HLV: Mặc định pass <code>coach123</code> (hoặc pass do Admin cấp sau khi duyệt apply).</em><br>
+                    💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>
                 </div>
 
                 <p id="auth-error" class="hidden text-xs text-red-400 bg-red-950/40 border border-red-800 p-2.5 rounded-lg" role="alert"></p>
 
                 <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition shadow-lg">
                     Xác nhận Đăng nhập ↗
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ACCOUNT CREDENTIALS MODAL -->
+    <div id="account-settings-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-white/10 p-6 sm:p-8 rounded-2xl max-w-md w-full relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeAccountSettings()" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Đóng">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="mb-6">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">BẢO MẬT TÀI KHOẢN</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐỔI THÔNG TIN ĐĂNG NHẬP</h3>
+                <p class="text-xs text-gray-400 mt-2">Nhập mật khẩu hiện tại để xác nhận. Để trống thông tin nào nếu bạn không muốn đổi thông tin đó.</p>
+            </div>
+
+            <form id="account-settings-form" onsubmit="handleAccountSettingsSubmit(event)" class="space-y-4">
+                <div>
+                    <label for="account-current-password" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mật khẩu hiện tại</label>
+                    <input id="account-current-password" type="password" required autocomplete="current-password" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+                <div>
+                    <label for="account-new-username" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Tên đăng nhập mới</label>
+                    <input id="account-new-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]{3,30}" autocomplete="username" placeholder="Để trống nếu không đổi" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <p class="text-[11px] text-gray-500 mt-1">3–30 ký tự: chữ không dấu, số, dấu chấm, gạch dưới hoặc gạch ngang.</p>
+                </div>
+                <div>
+                    <label for="account-new-password" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mật khẩu mới</label>
+                    <input id="account-new-password" type="password" minlength="8" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+                <div>
+                    <label for="account-confirm-password" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Xác nhận mật khẩu mới</label>
+                    <input id="account-confirm-password" type="password" minlength="8" autocomplete="new-password" placeholder="Nhập lại mật khẩu mới" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                </div>
+
+                <p id="account-settings-error" class="hidden text-xs text-red-300 bg-red-950/40 border border-red-800 p-2.5 rounded-lg" role="alert"></p>
+                <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition shadow-lg">
+                    Lưu thay đổi
                 </button>
             </form>
         </div>
@@ -900,6 +971,7 @@
                     <textarea id="coach-app-intro" rows="3" placeholder="Chia sẻ phong cách huấn luyện, thành tích học viên đã đạt được..." class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
                 </div>
 
+                <p id="coach-app-error" class="hidden text-xs text-red-300 bg-red-950/40 border border-red-800 p-2.5 rounded-lg" role="alert"></p>
                 <button type="submit" class="w-full py-3 bg-brand-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition shadow-lg">
                     GỬI HỒ SƠ ỨNG TUYỂN ↗
                 </button>
@@ -1055,7 +1127,10 @@
             <div id="cptab-content-bookings">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="text-sm font-bold uppercase tracking-wider text-gray-300">Danh sách Ca dạy Studio của bạn</h4>
-                    <span id="coach-booking-count" class="text-xs text-brand-red font-bold">0 ca tập</span>
+                    <div class="flex items-center gap-3">
+                        <span id="coach-booking-count" class="text-xs text-brand-red font-bold">0 ca tập</span>
+                        <button type="button" onclick="refreshCoachBookings()" class="text-xs text-gray-400 hover:text-white" aria-label="Tải lại lịch đặt">Tải lại</button>
+                    </div>
                 </div>
                 <div id="coach-bookings-list" class="space-y-3">
                     <!-- Populated dynamically -->
@@ -1067,23 +1142,23 @@
                 <form id="coach-profile-form" onsubmit="handleUpdateCoachProfile(event)" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Bằng cấp & Chứng chỉ quốc tế</label>
-                        <input id="edit-coach-cert" type="text" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <input id="edit-coach-cert" type="text" maxlength="500" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                         <p class="text-[11px] text-gray-500 mt-1">Ví dụ: NASM-CPT, CSCS, CF-L1, Corrective Exercise Specialist</p>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Số năm kinh nghiệm</label>
-                        <input id="edit-coach-exp" type="text" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <input id="edit-coach-exp" type="text" maxlength="200" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Chuyên môn / Mô tả phong cách huấn luyện</label>
-                        <textarea id="edit-coach-desc" rows="3" class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
+                        <textarea id="edit-coach-desc" rows="3" maxlength="2000" class="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-brand-red resize-none"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Link ảnh đại diện</label>
-                        <input id="edit-coach-img" type="url" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                        <input id="edit-coach-img" type="text" maxlength="1000" placeholder="https://..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                     </div>
 
                     <button type="submit" class="px-6 py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition">
@@ -1128,12 +1203,12 @@
         <!-- Floating trigger button -->
         <button id="chat-toggle-btn" onclick="toggleChatWidget()" class="bg-brand-red hover:bg-red-700 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl flex items-center gap-2.5 transition transform hover:scale-105 border border-white/20">
             <i data-lucide="message-square" class="w-5 h-5"></i>
-            <span class="hidden sm:inline text-xs font-bold uppercase tracking-wider">Hỗ trợ & Trao đổi</span>
+            <span class="text-xs font-bold uppercase tracking-wider">Hỗ trợ & Trao đổi</span>
             <span id="chat-unread-dot" class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
         </button>
 
         <!-- Chat Popup Box -->
-        <div id="chat-box-window" class="hidden absolute bottom-16 right-0 w-[92vw] sm:w-96 bg-zinc-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="height: 480px;">
+        <div id="chat-box-window" class="hidden absolute bottom-16 right-0 w-[92vw] sm:w-96 bg-zinc-900 border border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
             <!-- Chat Header -->
             <div class="p-4 bg-black/60 border-b border-white/10 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
@@ -1148,6 +1223,14 @@
                 </button>
             </div>
 
+            <div class="px-3 py-2 bg-black/30 border-b border-white/10 flex items-center gap-2">
+                <label for="chat-conversation-select" class="sr-only">Chọn người nhận</label>
+                <select id="chat-conversation-select" onchange="selectChatConversation(this.value)" class="flex-1 min-w-0 bg-zinc-900 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                    <option value="">Đang tải hộp thư...</option>
+                </select>
+                <button type="button" onclick="loadChatConversations()" class="px-3 py-2 text-xs text-gray-300 hover:text-white border border-white/15 rounded-lg">Làm mới</button>
+            </div>
+
             <!-- Messages Stream -->
             <div id="chat-messages-stream" class="flex-1 p-4 overflow-y-auto space-y-3 bg-black/40 text-xs">
                 <!-- Dynamically rendered -->
@@ -1155,7 +1238,7 @@
 
             <!-- Chat Input Area -->
             <form id="chat-input-form" onsubmit="handleSendChatMessage(event)" class="p-3 bg-zinc-900 border-t border-white/10 flex gap-2">
-                <input id="chat-input-text" type="text" placeholder="Nhắn tin cho Admin hoặc Coach..." required class="flex-1 bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-red">
+                <input id="chat-input-text" type="text" maxlength="2000" placeholder="Nhắn tin..." required disabled class="flex-1 bg-black/50 border border-white/20 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:border-brand-red disabled:opacity-50">
                 <button type="submit" class="px-4 py-2 bg-brand-red text-white font-bold text-xs rounded-lg hover:bg-red-700 transition">
                     Gửi ↗
                 </button>
@@ -1453,7 +1536,7 @@
                 nav_pricing: 'Bảng Giá',
                 btn_header_register: 'Đăng ký trải nghiệm',
                 hero_eyebrow: 'RIÊNG TƯ HƠN CHO MỖI BUỔI TẬP',
-                hero_title: 'PRIVATE GYM TẠI THỦ ĐỨC.',
+                hero_title: 'PRIVATE GYM TẠI THỦ\u00a0ĐỨC.',
                 hero_desc: 'Tập trong một không gian riêng tư, cùng coach thật sự hiểu bạn và một cộng đồng khiến bạn muốn quay lại mỗi ngày.',
                 btn_explore: 'KHÁM PHÁ THE OCEAN',
                 btn_trial: 'Đăng ký trải nghiệm',
@@ -1627,7 +1710,7 @@
                 nav_pricing: 'Pricing',
                 btn_header_register: 'Book a trial',
                 hero_eyebrow: 'MORE PRIVACY FOR EVERY SESSION',
-                hero_title: 'PRIVATE GYM IN THỦ ĐỨC.',
+                hero_title: 'PRIVATE GYM IN THỦ\u00a0ĐỨC.',
                 hero_desc: 'Train in a private space with a coach who truly understands you and a community that makes you want to come back every day.',
                 btn_explore: 'EXPLORE THE OCEAN',
                 btn_trial: 'Book a trial',
@@ -1856,13 +1939,16 @@
             const coachLinks = document.getElementById('nav-menu-coach-links');
             const publisherAvatar = document.getElementById('feed-publisher-avatar');
             const mobileAuthSection = document.getElementById('mobile-auth-section');
+            const applyCoachCta = document.getElementById('apply-coach-cta');
+            if (applyCoachCta) applyCoachCta.classList.toggle('hidden', Boolean(user));
 
             if (user) {
+                const avatar = user.avatar || user.img || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
                 if (loginBtn) loginBtn.classList.add('hidden');
                 if (userMenu) userMenu.classList.remove('hidden');
                 if (userName) userName.textContent = user.name;
-                if (userAvatar) userAvatar.src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
-                if (publisherAvatar) publisherAvatar.src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
+                if (userAvatar) userAvatar.src = avatar;
+                if (publisherAvatar) publisherAvatar.src = avatar;
 
                 if (user.role === 'coach') {
                     if (userBadge) {
@@ -1884,7 +1970,7 @@
                     mobileAuthSection.innerHTML = `
                         <div class="p-3 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120'}" class="w-7 h-7 rounded-full object-cover" />
+                                <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
                                 <div>
                                     <div class="text-xs font-bold text-white">${user.name}</div>
                                     <div class="text-[10px] text-gray-400">${user.role === 'coach' ? 'Huấn Luyện Viên' : 'Hội Viên The Ocean'}</div>
@@ -1911,6 +1997,73 @@
             if (event) event.stopPropagation();
             const dropdown = document.getElementById('nav-user-dropdown');
             if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        function openAccountSettings() {
+            const user = OceanApp.getCurrentUser();
+            if (!user) return;
+            const form = document.getElementById('account-settings-form');
+            const error = document.getElementById('account-settings-error');
+            if (form) form.reset();
+            if (error) {
+                error.textContent = '';
+                error.classList.add('hidden');
+            }
+            const username = document.getElementById('account-new-username');
+            if (username) username.placeholder = `Tên hiện tại: ${user.username || user.id}`;
+            document.getElementById('account-settings-modal').classList.remove('hidden');
+        }
+
+        function closeAccountSettings() {
+            document.getElementById('account-settings-modal').classList.add('hidden');
+            document.getElementById('account-settings-form').reset();
+        }
+
+        async function handleAccountSettingsSubmit(event) {
+            event.preventDefault();
+            const user = OceanApp.getCurrentUser();
+            const currentPassword = document.getElementById('account-current-password').value;
+            const newUsername = document.getElementById('account-new-username').value.trim();
+            const newPassword = document.getElementById('account-new-password').value.trim();
+            const confirmPassword = document.getElementById('account-confirm-password').value.trim();
+            const error = document.getElementById('account-settings-error');
+
+            if (document.getElementById('account-new-password').value && !newPassword) {
+                error.textContent = 'Mật khẩu mới không được chỉ gồm khoảng trắng.';
+                error.classList.remove('hidden');
+                return;
+            }
+            if (newPassword && newPassword !== confirmPassword) {
+                error.textContent = 'Mật khẩu xác nhận không khớp.';
+                error.classList.remove('hidden');
+                return;
+            }
+            if (!newPassword && confirmPassword) {
+                error.textContent = 'Vui lòng nhập mật khẩu mới trước khi xác nhận.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            if (!user) {
+                error.textContent = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+                error.classList.remove('hidden');
+                return;
+            }
+            const submit = event.submitter;
+            if (submit) submit.disabled = true;
+            const result = await OceanApp.updateAccountCredentials(user.id, user.role, currentPassword, {
+                username: newUsername,
+                password: newPassword
+            });
+            if (submit) submit.disabled = false;
+            if (!result.success) {
+                error.textContent = result.error;
+                error.classList.remove('hidden');
+                return;
+            }
+
+            closeAccountSettings();
+            showToast('Đã cập nhật thông tin đăng nhập thành công.');
         }
 
         document.addEventListener('click', (e) => {
@@ -1944,24 +2097,32 @@
                 tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
                 tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
                 label.textContent = 'Số điện thoại hoặc Tên đăng nhập';
-                hint.innerHTML = '💡 <em>Học viên: Đăng nhập bằng Số điện thoại hoặc Username do Admin cấp khi chốt gói.</em>';
+                hint.innerHTML = '💡 <em>Học viên: Đăng nhập bằng Số điện thoại hoặc Username do Admin cấp khi chốt gói.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
             } else {
                 tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
                 tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
                 label.textContent = 'Tên đăng nhập HLV (hoặc Số điện thoại HLV)';
-                hint.innerHTML = '💡 <em>HLV: Tên tài khoản HLV (VD: <code>coach-hai</code>, <code>coach-thao</code>) • Mật khẩu mặc định: <code>coach123</code>.</em>';
+                hint.innerHTML = '💡 <em>HLV: Tên tài khoản HLV (VD: <code>coach-hai</code>, <code>coach-thao</code>) • Mật khẩu mặc định: <code>coach123</code>.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
             }
             document.getElementById('auth-error').classList.add('hidden');
         }
 
-        function handleAuthLogin(e) {
+        async function handleAuthLogin(e) {
             e.preventDefault();
             const username = document.getElementById('auth-username').value.trim();
             const password = document.getElementById('auth-password').value;
             const errEl = document.getElementById('auth-error');
+            const submit = e.submitter;
 
-            const res = OceanApp.login(username, password);
+            if (submit) submit.disabled = true;
+            const res = await OceanApp.login(username, password, activeAuthRole);
+            if (submit) submit.disabled = false;
             if (res.success) {
+                if (res.admin) {
+                    closeAuthModal();
+                    window.location.href = window.location.pathname.includes('/html/') ? 'admin.html' : '/html/admin.html';
+                    return;
+                }
                 closeAuthModal();
                 updateAuthUI();
                 showToast(`Xin chào ${res.user.name}! Bạn đã đăng nhập thành công.`);
@@ -1974,19 +2135,34 @@
             }
         }
 
-        function handleLogout() {
-            OceanApp.logout();
-            updateAuthUI();
-            showToast('Bạn đã đăng xuất an toàn.');
+        async function handleLogout() {
+            try {
+                await OceanApp.logout();
+                updateAuthUI();
+                showToast('Bạn đã đăng xuất an toàn.');
+            } catch (error) {
+                updateAuthUI();
+                showToast(`Không thể kết nối máy chủ để đăng xuất: ${error.message}`);
+            }
         }
 
         // Render Dynamic Coaches
+        function escapeCoachHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
         function renderCoachesGrid() {
             const container = document.getElementById('coaches-grid');
             if (!container || !window.OceanApp) return;
             container.replaceChildren();
 
-            const coaches = OceanApp.getCoaches();
+            const coaches = OceanApp.getCoaches().filter(coach => coach.status !== 'inactive');
             const bookingSelect = document.getElementById('booking-coach-select');
             const reviewSelect = document.getElementById('review-coach-select');
 
@@ -1994,31 +2170,35 @@
             if (reviewSelect) reviewSelect.replaceChildren();
 
             for (const coach of coaches) {
+                const safeImage = /^(https?:\/\/|\.\.?\/assets\/)/i.test(coach.img || '')
+                    ? escapeCoachHtml(coach.img)
+                    : '../assets/images/coach-hai.jpg';
                 // Card for home page
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between';
                 card.innerHTML = `
                     <div>
                         <div class="h-72 overflow-hidden relative">
-                            <img src="${coach.img}" alt="${coach.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            <span class="absolute top-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full">${coach.role}</span>
+                            <img src="${safeImage}" alt="${escapeCoachHtml(coach.name)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <span class="absolute top-4 left-4 px-3 py-1 bg-black/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full">${escapeCoachHtml(coach.role)}</span>
                         </div>
                         <div class="p-6">
-                            <h3 class="text-xl font-black uppercase font-display mb-1 text-black">${coach.name}</h3>
-                            <p class="text-sm text-gray-600 mb-3">${coach.desc}</p>
+                            <h3 class="text-xl font-black uppercase font-display mb-1 text-black">${escapeCoachHtml(coach.name)}</h3>
+                            <p class="text-sm text-gray-600 mb-3">${escapeCoachHtml(coach.desc)}</p>
                             <div class="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                                <span>${coach.exp}</span>
+                                <span>${escapeCoachHtml(coach.exp)}</span>
                                 <span>•</span>
-                                <span class="text-brand-red font-bold">${coach.cert || 'HLV Chuyên Nghiệp'}</span>
+                                <span class="text-brand-red font-bold">${escapeCoachHtml(coach.cert || 'HLV Chuyên Nghiệp')}</span>
                             </div>
                         </div>
                     </div>
                     <div class="p-6 pt-0">
-                        <button onclick="openBookingModal('${coach.id}')" class="w-full py-3 bg-black hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
-                            <span>Đặt lịch với ${coach.name}</span> ↗
+                        <button class="w-full py-3 bg-black hover:bg-zinc-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <span>Đặt lịch với ${escapeCoachHtml(coach.name)}</span> ↗
                         </button>
                     </div>
                 `;
+                card.querySelector('button').addEventListener('click', () => openBookingModal(coach.id));
                 container.appendChild(card);
 
                 // Populate selects
@@ -2039,6 +2219,10 @@
 
         // Apply Coach Modal
         function openApplyCoachModal() {
+            if (OceanApp.getCurrentUser()) {
+                showToast('Bạn đã đăng nhập bằng tài khoản hiện tại nên không thể gửi hồ sơ ứng tuyển HLV.');
+                return;
+            }
             document.getElementById('apply-coach-modal').classList.remove('hidden');
         }
 
@@ -2046,7 +2230,7 @@
             document.getElementById('apply-coach-modal').classList.add('hidden');
         }
 
-        function handleApplyCoachSubmit(e) {
+        async function handleApplyCoachSubmit(e) {
             e.preventDefault();
             const name = document.getElementById('coach-app-name').value.trim();
             const phone = document.getElementById('coach-app-phone').value.trim();
@@ -2057,12 +2241,24 @@
             const image = document.getElementById('coach-app-image').value.trim();
             const intro = document.getElementById('coach-app-intro').value.trim();
 
-            OceanApp.submitCoachApplication({
-                name, phone, email, role, exp, cert, image, intro
-            });
+            const error = document.getElementById('coach-app-error');
+            error.classList.add('hidden');
+            const submit = e.submitter;
+            if (submit) submit.disabled = true;
+            try {
+                await OceanApp.submitCoachApplication({
+                    name, phone, email, role, exp, cert, image, intro
+                });
+            } catch (requestError) {
+                error.textContent = requestError.message;
+                error.classList.remove('hidden');
+                if (submit) submit.disabled = false;
+                return;
+            }
 
             closeApplyCoachModal();
             e.target.reset();
+            if (submit) submit.disabled = false;
             showToast('Hồ sơ ứng tuyển đã được gửi! Ban Quản Trị sẽ duyệt và cấp tài khoản cho bạn.');
         }
 
@@ -2095,7 +2291,7 @@
             document.getElementById('booking-modal').classList.add('hidden');
         }
 
-        function handleBookingSubmit(e) {
+        async function handleBookingSubmit(e) {
             e.preventDefault();
             const coachId = document.getElementById('booking-coach-select').value;
             const coach = OceanApp.getCoachById(coachId);
@@ -2107,19 +2303,26 @@
 
             const user = OceanApp.getCurrentUser();
 
-            OceanApp.bookSession({
-                memberId: user ? user.id : 'guest_' + Date.now(),
-                memberName,
-                memberPhone,
-                coachId,
-                coachName: coach ? coach.name : 'Huấn luyện viên The Ocean',
-                date,
-                timeSlot,
-                note
-            });
-
-            closeBookingModal();
-            showToast(`Đặt lịch thành công ca ${timeSlot} ngày ${date} cùng ${coach ? coach.name : 'Coach'}!`);
+            const submit = e.submitter;
+            if (submit) submit.disabled = true;
+            try {
+                await OceanApp.bookSession({
+                    memberId: user ? user.id : 'guest_' + Date.now(),
+                    memberName,
+                    memberPhone,
+                    coachId,
+                    coachName: coach ? coach.name : 'Huấn luyện viên The Ocean',
+                    date,
+                    timeSlot,
+                    note
+                });
+                closeBookingModal();
+                showToast(`Đặt lịch thành công ca ${timeSlot} ngày ${date} cùng ${coach ? coach.name : 'Coach'}!`);
+            } catch (error) {
+                showToast(`Không thể đặt lịch: ${error.message}`);
+            } finally {
+                if (submit) submit.disabled = false;
+            }
         }
 
         // Review Modal
@@ -2307,7 +2510,7 @@
         }
 
         // Coach Portal
-        function openCoachPortalModal(initialTab = 'bookings') {
+        async function openCoachPortalModal(initialTab = 'bookings') {
             const user = OceanApp.getCurrentUser();
             if (!user || user.role !== 'coach') {
                 openAuthModal();
@@ -2317,7 +2520,7 @@
 
             const coach = OceanApp.getCoachById(user.id) || user;
             document.getElementById('coach-portal-name').textContent = coach.name;
-            document.getElementById('coach-portal-role').textContent = `${coach.coachRole || coach.role} • ${coach.exp}`;
+            document.getElementById('coach-portal-role').textContent = `${coach.coachRole || coach.role} • ${coach.exp || coach.desc || ''}`;
             document.getElementById('coach-portal-avatar').src = coach.img || coach.avatar || '';
 
             // Pre-fill profile form
@@ -2326,37 +2529,96 @@
             document.getElementById('edit-coach-desc').value = coach.desc || '';
             document.getElementById('edit-coach-img').value = coach.img || '';
 
-            // Render bookings for this coach
-            const allBookings = OceanApp.getBookings();
-            const myBookings = allBookings.filter(b => b.coachId === coach.id || b.coachName.includes(coach.name));
-            document.getElementById('coach-booking-count').textContent = `${myBookings.length} ca tập`;
-
             const list = document.getElementById('coach-bookings-list');
-            list.replaceChildren();
-            if (!myBookings.length) {
-                list.innerHTML = `<div class="p-6 bg-white/5 rounded-xl text-center text-xs text-gray-400">Chưa có học viên nào đặt lịch với bạn trong khung giờ này.</div>`;
-            } else {
-                for (const b of myBookings) {
-                    const item = document.createElement('div');
-                    item.className = 'p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3';
-                    item.innerHTML = `
-                        <div>
-                            <div class="font-bold text-white text-sm">${b.memberName}</div>
-                            <div class="text-xs text-gray-400">SĐT: <a href="tel:${b.memberPhone}" class="text-cyan-400">${b.memberPhone}</a></div>
-                            <div class="text-xs text-gray-300 mt-1">Mục tiêu: <span class="text-yellow-400">${b.note || 'Tập cá nhân'}</span></div>
-                        </div>
-                        <div class="text-left sm:text-right">
-                            <div class="text-xs font-bold text-brand-red">${b.date}</div>
-                            <div class="text-xs text-white font-bold">${b.timeSlot}</div>
-                            <span class="inline-block px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold mt-1">Đã chốt lịch</span>
-                        </div>
-                    `;
-                    list.appendChild(item);
-                }
-            }
+            list.innerHTML = '<div class="p-6 bg-white/5 rounded-xl text-center text-xs text-gray-400">Đang tải lịch đặt...</div>';
 
             switchCoachPortalTab(initialTab);
             document.getElementById('coach-portal-modal').classList.remove('hidden');
+            await renderCoachBookings(coach, list);
+        }
+
+        async function renderCoachBookings(coach, list) {
+            let accountBookings;
+            try {
+                accountBookings = await OceanApp.getAccountBookings();
+            } catch (error) {
+                list.innerHTML = `<div class="p-6 bg-red-950/40 border border-red-900 rounded-xl text-center text-xs text-red-200">Không thể tải lịch đặt từ máy chủ: ${escapeCoachHtml(error.message)}</div>`;
+                return;
+            }
+
+            const localBookings = OceanApp.getBookings().filter(booking =>
+                booking.coachId === coach.id || (booking.coachName || '').includes(coach.name)
+            );
+            const serverBookingIds = new Set(accountBookings.map(booking => booking.id));
+            const bookingsById = new Map(localBookings.map(booking => [booking.id, booking]));
+            for (const booking of accountBookings) bookingsById.set(booking.id, booking);
+            const myBookings = [...bookingsById.values()]
+                .filter(booking => booking.coachId === coach.id || (booking.coachName || '').includes(coach.name))
+                .sort((left, right) => `${left.date} ${left.timeSlot}`.localeCompare(`${right.date} ${right.timeSlot}`));
+
+            document.getElementById('coach-booking-count').textContent = `${myBookings.length} ca tập`;
+            list.replaceChildren();
+            if (!myBookings.length) {
+                list.innerHTML = '<div class="p-6 bg-white/5 rounded-xl text-center text-xs text-gray-400">Chưa có học viên nào đặt lịch với bạn.</div>';
+                return;
+            }
+
+            const statusLabels = {
+                confirmed: ['Đã xác nhận', 'bg-green-500/20 text-green-400'],
+                completed: ['Đã hoàn thành', 'bg-blue-500/20 text-blue-300'],
+                cancelled: ['Đã hủy', 'bg-gray-500/20 text-gray-400']
+            };
+            for (const booking of myBookings) {
+                const item = document.createElement('div');
+                item.className = 'p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                const safeId = escapeCoachHtml(booking.id);
+                const safePhone = escapeCoachHtml(booking.memberPhone || '');
+                const safeName = escapeCoachHtml(booking.memberName || 'Học viên');
+                const safeNote = escapeCoachHtml(booking.note || 'Tập cá nhân');
+                const [statusLabel, statusStyle] = statusLabels[booking.status] || statusLabels.confirmed;
+                item.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white text-sm">${safeName}</div>
+                        <div class="text-xs text-gray-400">SĐT: <a href="tel:${safePhone}" class="text-cyan-400">${safePhone || 'Chưa cập nhật'}</a></div>
+                        <div class="text-xs text-gray-300 mt-1">Mục tiêu: <span class="text-yellow-400">${safeNote}</span></div>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <div class="text-xs font-bold text-brand-red">${escapeCoachHtml(booking.date)}</div>
+                        <div class="text-xs text-white font-bold">${escapeCoachHtml(booking.timeSlot)}</div>
+                        <span class="inline-block px-2 py-0.5 rounded ${statusStyle} text-[10px] font-bold mt-1">${statusLabel}</span>
+                        ${booking.status === 'confirmed' && serverBookingIds.has(booking.id) ? `
+                            <div class="flex gap-2 mt-2 sm:justify-end">
+                                <button type="button" data-booking-id="${safeId}" data-status="completed" class="coach-booking-action text-[10px] font-bold text-green-300 hover:text-white">Hoàn thành</button>
+                                <button type="button" data-booking-id="${safeId}" data-status="cancelled" class="coach-booking-action text-[10px] font-bold text-red-300 hover:text-white">Hủy ca</button>
+                            </div>` : ''}
+                    </div>
+                `;
+                list.appendChild(item);
+            }
+            list.querySelectorAll('.coach-booking-action').forEach(button => {
+                button.addEventListener('click', () => updateCoachBookingStatus(button.dataset.bookingId, button.dataset.status));
+            });
+        }
+
+        async function refreshCoachBookings() {
+            const user = OceanApp.getCurrentUser();
+            if (!user || user.role !== 'coach') return;
+            const coach = OceanApp.getCoachById(user.id) || user;
+            await renderCoachBookings(coach, document.getElementById('coach-bookings-list'));
+        }
+
+        async function updateCoachBookingStatus(bookingId, status) {
+            const user = OceanApp.getCurrentUser();
+            if (!user || user.role !== 'coach') return;
+            const coach = OceanApp.getCoachById(user.id) || user;
+            const list = document.getElementById('coach-bookings-list');
+            try {
+                await OceanApp.updateBookingStatus(bookingId, status);
+                await renderCoachBookings(coach, list);
+                showToast(status === 'completed' ? 'Đã cập nhật ca tập hoàn thành.' : 'Đã hủy ca tập.');
+            } catch (error) {
+                showToast(`Không thể cập nhật ca tập: ${error.message}`);
+            }
         }
 
         function closeCoachPortalModal() {
@@ -2382,7 +2644,7 @@
             }
         }
 
-        function handleUpdateCoachProfile(e) {
+        async function handleUpdateCoachProfile(e) {
             e.preventDefault();
             const user = OceanApp.getCurrentUser();
             if (!user) return;
@@ -2392,13 +2654,21 @@
             const desc = document.getElementById('edit-coach-desc').value.trim();
             const img = document.getElementById('edit-coach-img').value.trim();
 
-            OceanApp.updateCoachProfile(user.id, { cert, exp, desc, img });
-            renderCoachesGrid();
-            showToast('Đã cập nhật bằng cấp & bio thành công! Thông tin đã đồng bộ lên trang web.');
+            const submit = e.submitter;
+            if (submit) submit.disabled = true;
+            try {
+                await OceanApp.updateCoachProfile(user.id, { cert, exp, desc, img });
+                renderCoachesGrid();
+                showToast('Đã cập nhật bằng cấp & bio thành công.');
+            } catch (error) {
+                showToast(`Không thể cập nhật hồ sơ: ${error.message}`);
+            } finally {
+                if (submit) submit.disabled = false;
+            }
         }
 
         // Member Portal
-        function openMemberPortalModal() {
+        async function openMemberPortalModal() {
             const user = OceanApp.getCurrentUser();
             if (!user || user.role !== 'member') {
                 openAuthModal();
@@ -2410,8 +2680,21 @@
             document.getElementById('member-portal-phone').textContent = `Số điện thoại: ${user.phone || 'Chưa cập nhật'}`;
             document.getElementById('member-portal-avatar').src = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120';
 
-            const allBookings = OceanApp.getBookings();
-            const myBookings = allBookings.filter(b => b.memberId === user.id || b.memberPhone === user.phone);
+            let myBookings;
+            try {
+                const accountBookings = await OceanApp.getAccountBookings();
+                const localBookings = OceanApp.getBookings().filter(booking =>
+                    booking.memberId === user.id || booking.memberPhone === user.phone
+                );
+                const bookingsById = new Map(localBookings.map(booking => [booking.id, booking]));
+                for (const booking of accountBookings) bookingsById.set(booking.id, booking);
+                myBookings = [...bookingsById.values()];
+            } catch (error) {
+                showToast(`Không thể tải lịch tập từ máy chủ: ${error.message}`);
+                myBookings = OceanApp.getBookings().filter(booking =>
+                    booking.memberId === user.id || booking.memberPhone === user.phone
+                );
+            }
 
             const list = document.getElementById('member-bookings-list');
             list.replaceChildren();
@@ -2445,68 +2728,153 @@
         }
 
         // Live Chat Widget
-        function toggleChatWidget() {
+        let chatSelectedConversationId = '';
+        let chatPollingTimer = null;
+        let chatRefreshInProgress = false;
+        let chatConversationRefreshAt = 0;
+
+        async function toggleChatWidget() {
             const chatWindow = document.getElementById('chat-box-window');
             if (chatWindow) {
                 chatWindow.classList.toggle('hidden');
                 if (!chatWindow.classList.contains('hidden')) {
-                    renderChatWidget();
                     const dot = document.getElementById('chat-unread-dot');
                     if (dot) dot.classList.add('hidden');
+                    await loadChatConversations();
+                    if (chatPollingTimer) window.clearInterval(chatPollingTimer);
+                    chatPollingTimer = window.setInterval(refreshOpenChat, 4000);
+                } else if (chatPollingTimer) {
+                    window.clearInterval(chatPollingTimer);
+                    chatPollingTimer = null;
                 }
             }
         }
 
-        function renderChatWidget() {
-            const container = document.getElementById('chat-messages-stream');
-            if (!container || !window.OceanApp) return;
-            container.replaceChildren();
-
+        async function loadChatConversations() {
             const user = OceanApp.getCurrentUser();
-            const chats = OceanApp.getChats();
-
-            for (const msg of chats) {
-                const isMe = user && msg.senderId === user.id;
-                const isAdmin = msg.senderRole === 'admin';
-                const msgBox = document.createElement('div');
-                msgBox.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
-
-                const badge = isAdmin ? '<span class="text-brand-red font-black">ADMIN</span>' : `<span class="text-gray-400 uppercase font-semibold">${msg.senderRole}</span>`;
-
-                msgBox.innerHTML = `
-                    <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
-                        <span class="font-bold text-white">${msg.senderName}</span>
-                        ${badge}
-                        <span>• ${msg.time}</span>
-                    </div>
-                    <div class="p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed ${isMe ? 'bg-brand-red text-white rounded-br-none' : 'bg-white/10 text-gray-200 border border-white/10 rounded-bl-none'}">
-                        ${msg.text}
-                    </div>
-                `;
-                container.appendChild(msgBox);
+            const select = document.getElementById('chat-conversation-select');
+            const container = document.getElementById('chat-messages-stream');
+            if (!container || !select) return;
+            const input = document.getElementById('chat-input-text');
+            if (!user || !['member', 'coach'].includes(user.role)) {
+                chatSelectedConversationId = '';
+                select.innerHTML = '<option value="">Đăng nhập để mở hộp thư</option>';
+                input.disabled = true;
+                input.placeholder = 'Vui lòng đăng nhập để nhắn tin';
+                container.innerHTML = '<div class="text-center text-gray-400 py-8">Đăng nhập với tài khoản hội viên hoặc huấn luyện viên để chat với Admin. Hội viên đã đặt lịch có thể chat riêng với HLV.</div>';
+                return;
             }
-            container.scrollTop = container.scrollHeight;
+
+            input.disabled = false;
+            input.placeholder = 'Nhắn tin...';
+            select.innerHTML = '<option value="">Đang tải hộp thư...</option>';
+            try {
+                const conversations = await OceanApp.getChatConversations();
+                const previousSelection = chatSelectedConversationId;
+                select.replaceChildren();
+                for (const conversation of conversations) {
+                    const option = document.createElement('option');
+                    option.value = conversation.id;
+                    const roleLabels = { admin: 'Ban quản trị', coach: 'Huấn luyện viên', member: 'Hội viên' };
+                    option.textContent = `${conversation.partnerName} (${roleLabels[conversation.partnerRole] || 'Tài khoản'})`;
+                    select.appendChild(option);
+                }
+                if (!conversations.length) {
+                    select.add(new Option('Chưa có hội thoại', ''));
+                    chatSelectedConversationId = '';
+                    container.innerHTML = '<div class="text-center text-gray-400 py-8">Chưa có hội thoại. Hãy đặt lịch với HLV để bắt đầu chat riêng, hoặc liên hệ Ban quản trị.</div>';
+                    return;
+                }
+                chatSelectedConversationId = conversations.some(conversation => conversation.id === previousSelection)
+                    ? previousSelection
+                    : (conversations.find(conversation => conversation.partnerRole === 'admin') || conversations[0]).id;
+                select.value = chatSelectedConversationId;
+                chatConversationRefreshAt = Date.now();
+                await renderChatWidget();
+            } catch (error) {
+                select.innerHTML = '<option value="">Không tải được hộp thư</option>';
+                input.disabled = true;
+                container.textContent = `Không thể tải hộp thư: ${error.message}`;
+            }
         }
 
-        function handleSendChatMessage(e) {
+        async function selectChatConversation(conversationId) {
+            chatSelectedConversationId = conversationId;
+            await renderChatWidget();
+        }
+
+        async function renderChatWidget() {
+            const container = document.getElementById('chat-messages-stream');
+            if (!container || !chatSelectedConversationId || chatRefreshInProgress) return;
+            chatRefreshInProgress = true;
+            try {
+                const messages = await OceanApp.getChatMessages(chatSelectedConversationId);
+                const user = OceanApp.getCurrentUser();
+                container.replaceChildren();
+                for (const message of messages) {
+                    const isMe = message.senderId === user.id;
+                    const bubble = document.createElement('div');
+                    bubble.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'}`;
+                    const sentTime = message.sentAt
+                        ? new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(new Date(message.sentAt))
+                        : '';
+                    const meta = document.createElement('div');
+                    meta.className = 'text-[10px] text-gray-400 mb-1';
+                    meta.textContent = `${message.senderName} • ${sentTime}`;
+                    const text = document.createElement('div');
+                    text.className = `p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed whitespace-pre-wrap break-words ${isMe ? 'bg-brand-red text-white rounded-br-none' : 'bg-white/10 text-gray-200 border border-white/10 rounded-bl-none'}`;
+                    text.textContent = message.text;
+                    bubble.append(meta, text);
+                    container.appendChild(bubble);
+                }
+                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                container.textContent = `Không thể tải tin nhắn: ${error.message}`;
+            } finally {
+                chatRefreshInProgress = false;
+            }
+        }
+
+        async function refreshOpenChat() {
+            const chatWindow = document.getElementById('chat-box-window');
+            if (!chatWindow || chatWindow.classList.contains('hidden')) return;
+            if (Date.now() - chatConversationRefreshAt > 20000) {
+                await loadChatConversations();
+            } else {
+                await renderChatWidget();
+            }
+        }
+
+        async function handleSendChatMessage(e) {
             e.preventDefault();
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
-            if (!text || !window.OceanApp) return;
-
-            const user = OceanApp.getCurrentUser() || {
-                id: 'guest_' + Date.now(),
-                name: 'Khách tham quan',
-                role: 'guest'
-            };
-
-            OceanApp.sendMessage(user, text);
-            input.value = '';
-            renderChatWidget();
+            if (!text || !chatSelectedConversationId) return;
+            const submit = e.submitter;
+            if (submit) submit.disabled = true;
+            try {
+                await OceanApp.sendChatMessage(chatSelectedConversationId, text);
+                input.value = '';
+                await renderChatWidget();
+            } catch (error) {
+                showToast(`Không gửi được tin nhắn: ${error.message}`);
+            } finally {
+                if (submit) submit.disabled = false;
+            }
         }
 
         // Initialize Everything
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await OceanApp.restoreAccountSession();
+            } catch (error) {
+                console.warn('Không thể khôi phục phiên đăng nhập từ máy chủ:', error);
+            }
+            try {
+                await OceanApp.fetchPublicCoaches();
+            } catch (error) {
+                console.error('Không thể tải đội ngũ huấn luyện viên từ máy chủ:', error);
+            }
             updateAuthUI();
             renderCoachesGrid();
             renderCommunityFeed();
@@ -2517,7 +2885,10 @@
         window.addEventListener('ocean:coaches-updated', renderCoachesGrid);
         window.addEventListener('ocean:posts-updated', renderCommunityFeed);
         window.addEventListener('ocean:reviews-updated', renderReviewsGrid);
-        window.addEventListener('ocean:chats-updated', renderChatWidget);
+        window.addEventListener('ocean:auth-changed', () => {
+            const chatWindow = document.getElementById('chat-box-window');
+            if (chatWindow && !chatWindow.classList.contains('hidden')) loadChatConversations();
+        });
 
         setLanguage('vi');
     </script>

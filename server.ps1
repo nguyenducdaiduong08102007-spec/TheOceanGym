@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$Url = 'http://127.0.0.1:8080/'
 )
 
@@ -313,12 +313,12 @@ while ($listener.IsListening) {
             continue
         }
 
-        if ($path -eq '/api/admin/login' -and $method -eq 'POST') {
+        if (($path -eq '/api/admin/login' -or $path -eq '/api/accounts/login') -and $method -eq 'POST') {
             if (-not (Test-SameOrigin $request)) {
                 Send-Json $response 403 @{ error = 'Không chấp nhận yêu cầu từ website khác.' }
                 continue
             }
-            if (-not (Test-RateLimit $loginAttempts $ip 5 ([TimeSpan]::FromMinutes(15)))) {
+            if (-not (Test-RateLimit $loginAttempts $ip 8 ([TimeSpan]::FromMinutes(15)))) {
                 Send-Json $response 429 @{ error = 'Đăng nhập quá nhiều lần. Vui lòng thử lại sau 15 phút.' }
                 continue
             }
@@ -328,17 +328,19 @@ while ($listener.IsListening) {
                 Send-Json $response 400 @{ error = 'Yêu cầu không hợp lệ.' }
                 continue
             }
-            $emailMatches = Test-ConstantTimeEqual ([string]$body.email).Trim().ToLowerInvariant() $adminEmail.Trim().ToLowerInvariant()
+            $identifier = if ($body.username) { [string]$body.username } else { [string]$body.email }
+            $emailMatches = Test-ConstantTimeEqual $identifier.Trim().ToLowerInvariant() $adminEmail.Trim().ToLowerInvariant()
+            $adminUserMatches = Test-ConstantTimeEqual $identifier.Trim().ToLowerInvariant() 'admin'
             $passwordMatches = Test-ConstantTimeEqual ([string]$body.password) $adminPassword
-            if (-not ($emailMatches -and $passwordMatches)) {
-                Send-Json $response 401 @{ error = 'Email hoặc mật khẩu không chính xác.' }
+            if (-not (($emailMatches -or $adminUserMatches) -and $passwordMatches)) {
+                Send-Json $response 401 @{ success = $false; error = 'Email hoặc mật khẩu không chính xác.' }
                 continue
             }
             $token = New-SessionToken
             $sessions[$token] = [DateTimeOffset]::UtcNow.Add($sessionLifetime)
             $secureCookie = if (Test-SecureCookie $request) { '; Secure' } else { '' }
             $response.Headers.Add('Set-Cookie', "theocean_admin=$token; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800$secureCookie")
-            Send-Json $response 200 @{ authenticated = $true }
+            Send-Json $response 200 @{ authenticated = $true; success = $true; admin = $true }
             continue
         }
 

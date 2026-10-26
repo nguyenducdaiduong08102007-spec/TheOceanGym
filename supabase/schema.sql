@@ -3,8 +3,11 @@ create table if not exists public.registrations (
     name text not null check (char_length(name) between 2 and 100),
     phone text not null check (phone ~ '^(?:\+84|0)(?:3|5|7|8|9)[0-9]{8}$'),
     goal text not null default '' check (char_length(goal) <= 120),
+    status text not null default 'pending',
     submitted_at timestamptz not null default now()
 );
+
+alter table public.registrations add column if not exists status text not null default 'pending';
 
 create table if not exists public.revenue (
     id uuid primary key default gen_random_uuid(),
@@ -43,6 +46,23 @@ create table if not exists public.coaches (
     created_at timestamptz not null default now()
 );
 
+alter table public.members alter column id set default gen_random_uuid();
+alter table public.members alter column password drop not null;
+alter table public.members add column if not exists password_hash text;
+alter table public.members add column if not exists email text not null default '';
+alter table public.members add column if not exists goal text not null default '';
+alter table public.members add column if not exists avatar text not null default '';
+alter table public.members add column if not exists status text not null default 'active';
+alter table public.members add column if not exists legacy_id text;
+create unique index if not exists members_legacy_id_idx on public.members (legacy_id) where legacy_id is not null;
+
+alter table public.coaches alter column password drop not null;
+alter table public.coaches add column if not exists username text;
+alter table public.coaches add column if not exists password_hash text;
+alter table public.coaches add column if not exists legacy_id text;
+create unique index if not exists coaches_username_idx on public.coaches (lower(username)) where username is not null;
+create unique index if not exists coaches_legacy_id_idx on public.coaches (legacy_id) where legacy_id is not null;
+
 create table if not exists public.coach_applications (
     id uuid primary key default gen_random_uuid(),
     name text not null,
@@ -57,8 +77,15 @@ create table if not exists public.coach_applications (
     applied_at timestamptz not null default now()
 );
 
+alter table public.coach_applications add column if not exists legacy_id text;
+alter table public.coach_applications add column if not exists coach_id text;
+alter table public.coach_applications add column if not exists account_username text;
+create unique index if not exists coach_applications_legacy_id_idx
+    on public.coach_applications (legacy_id) where legacy_id is not null;
+
 create table if not exists public.bookings (
     id uuid primary key default gen_random_uuid(),
+    member_id text,
     member_name text not null,
     member_phone text not null,
     coach_id text not null,
@@ -69,6 +96,8 @@ create table if not exists public.bookings (
     status text not null default 'confirmed',
     created_at timestamptz not null default now()
 );
+
+alter table public.bookings add column if not exists member_id text;
 
 create table if not exists public.reviews (
     id uuid primary key default gen_random_uuid(),
@@ -100,6 +129,23 @@ create table if not exists public.messages (
     sent_at timestamptz not null default now()
 );
 
+create table if not exists public.conversations (
+    id uuid primary key default gen_random_uuid(),
+    participant_id text not null,
+    participant_role text not null check (participant_role in ('member', 'coach')),
+    coach_id text,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    check (coach_id is null or participant_role = 'member')
+);
+
+create unique index if not exists conversations_participants_unique_idx
+    on public.conversations (participant_id, participant_role, coalesce(coach_id, ''));
+create index if not exists conversations_coach_id_idx on public.conversations (coach_id);
+
+alter table public.messages add column if not exists conversation_id uuid references public.conversations(id) on delete cascade;
+alter table public.messages add column if not exists sender_id text;
+
 alter table public.registrations enable row level security;
 alter table public.revenue enable row level security;
 alter table public.rate_limits enable row level security;
@@ -110,10 +156,11 @@ alter table public.bookings enable row level security;
 alter table public.reviews enable row level security;
 alter table public.community_posts enable row level security;
 alter table public.messages enable row level security;
+alter table public.conversations enable row level security;
 
-revoke all on public.registrations, public.revenue, public.rate_limits, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages from anon, authenticated;
-grant select, insert on public.registrations, public.revenue, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages to service_role;
-grant update, delete on public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages, public.rate_limits to service_role;
+revoke all on public.registrations, public.revenue, public.rate_limits, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages, public.conversations from anon, authenticated;
+grant select, insert on public.registrations, public.revenue, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages, public.conversations to service_role;
+grant update, delete on public.registrations, public.members, public.coaches, public.coach_applications, public.bookings, public.reviews, public.community_posts, public.messages, public.conversations, public.rate_limits to service_role;
 
 create or replace function public.consume_rate_limit(
     p_key text,
@@ -154,7 +201,16 @@ language sql
 security definer
 set search_path = ''
 as $$
-    with local_clock as (
+    with converted_registrations as (
+        update public.registrations r
+        set status = 'converted'
+        from public.members m
+        where r.status = 'pending'
+            and regexp_replace(r.phone, '[^0-9]', '', 'g') <> ''
+            and regexp_replace(r.phone, '[^0-9]', '', 'g') = regexp_replace(m.phone, '[^0-9]', '', 'g')
+        returning r.id
+    ),
+    local_clock as (
         select
             timezone('Asia/Ho_Chi_Minh', now()) as local_now,
             date_trunc('month', timezone('Asia/Ho_Chi_Minh', now()))::date as current_month,
@@ -218,6 +274,8 @@ as $$
             from (
                 select id, name, phone, goal, submitted_at
                 from public.registrations
+                where status = 'pending'
+                    and id not in (select converted.id from converted_registrations converted)
                 order by submitted_at desc
                 limit 5
             ) recent

@@ -130,12 +130,31 @@
         }
     }
 
+    async function accountApiRequest(path, options = {}) {
+        const response = await fetch(path, {
+            credentials: 'same-origin',
+            ...options,
+            headers: {
+                ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+                ...options.headers
+            }
+        });
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error('Máy chủ trả về dữ liệu không hợp lệ.');
+        }
+        if (!response.ok) throw new Error(result.error || 'Yêu cầu không thành công.');
+        return result;
+    }
+
     // Core Ocean Store
     const OceanApp = {
         // Data getters
         getCoaches() {
             let coaches = loadStorage(STORAGE_KEY_COACHES, null);
-            if (!coaches || !coaches.length) {
+            if (!coaches) {
                 coaches = [...DEFAULT_COACHES];
                 saveStorage(STORAGE_KEY_COACHES, coaches);
             }
@@ -148,7 +167,7 @@
         },
 
         getCoachById(id) {
-            return this.getCoaches().find(c => c.id === id);
+            return this.getCoaches().find(c => c.id === id && c.status !== 'inactive');
         },
 
         getMembers() {
@@ -263,163 +282,185 @@
             window.dispatchEvent(new CustomEvent('ocean:auth-changed', { detail: user }));
         },
 
-        logout() {
-            localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
-            window.dispatchEvent(new CustomEvent('ocean:auth-changed', { detail: null }));
+        async logout() {
+            try {
+                await accountApiRequest('/api/accounts/logout', { method: 'POST' });
+            } finally {
+                localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
+                window.dispatchEvent(new CustomEvent('ocean:auth-changed', { detail: null }));
+            }
+        },
+
+        async restoreAccountSession() {
+            const result = await accountApiRequest('/api/accounts/session');
+            this.setCurrentUser(result.authenticated ? result.user : null);
+            return result;
+        },
+
+        async fetchPublicCoaches() {
+            const coaches = await accountApiRequest('/api/public/coaches');
+            if (coaches.length || localStorage.getItem('theocean_cloud_accounts_migrated_v1') === 'true') {
+                this.saveCoaches(coaches);
+            }
+            return coaches;
+        },
+
+        async syncLegacyAccounts() {
+            if (localStorage.getItem('theocean_cloud_accounts_migrated_v1') === 'true') {
+                return { accounts: 0, applications: 0 };
+            }
+            const accountsByRole = [
+                ['members', this.getMembers()],
+                ['coaches', this.getCoaches()]
+            ];
+            let imported = 0;
+            for (const [resource, accounts] of accountsByRole) {
+                for (let index = 0; index < accounts.length; index += 3) {
+                    const result = await accountApiRequest(`/api/admin/accounts/${resource}/import`, {
+                        method: 'POST',
+                        body: JSON.stringify({ accounts: accounts.slice(index, index + 3) })
+                    });
+                    if (result.conflicts && result.conflicts.length) {
+                        const usernames = result.conflicts.map(account => account.username).join(', ');
+                        throw new Error(`Tên đăng nhập đã được tài khoản khác sử dụng (${usernames}). Dữ liệu cũ vẫn còn trên thiết bị này.`);
+                    }
+                    imported += result.imported || 0;
+                }
+            }
+            const applications = this.getCoachApplications();
+            let importedApplications = 0;
+            for (let index = 0; index < applications.length; index += 3) {
+                const result = await accountApiRequest('/api/admin/coach-applications/import', {
+                    method: 'POST',
+                    body: JSON.stringify({ applications: applications.slice(index, index + 3) })
+                });
+                importedApplications += result.imported || 0;
+            }
+            localStorage.setItem('theocean_cloud_accounts_migrated_v1', 'true');
+            for (const key of [STORAGE_KEY_MEMBERS, STORAGE_KEY_COACHES]) {
+                const accounts = loadStorage(key, []);
+                for (const account of accounts) delete account.password;
+                saveStorage(key, accounts);
+            }
+            for (const application of applications) {
+                if (application.accountCreated) delete application.accountCreated.password;
+            }
+            this.saveCoachApplications(applications);
+            return { accounts: imported, applications: importedApplications };
+        },
+
+        async updateAccountCredentials(userId, role, currentPassword, updates) {
+            const currentUser = this.getCurrentUser();
+            if (!currentUser || currentUser.id !== userId || currentUser.role !== role) {
+                return { success: false, error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' };
+            }
+
+            const newUsername = (updates.username || '').trim();
+            const newPassword = (updates.password || '').trim();
+            if (!newUsername && !newPassword) {
+                return { success: false, error: 'Vui lòng nhập tên đăng nhập hoặc mật khẩu mới.' };
+            }
+            if (newUsername && !/^[a-zA-Z0-9._-]{3,30}$/.test(newUsername)) {
+                return { success: false, error: 'Tên đăng nhập phải có 3–30 ký tự, chỉ gồm chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.' };
+            }
+            if (newPassword && newPassword.length < 8) {
+                return { success: false, error: 'Mật khẩu mới phải có ít nhất 8 ký tự.' };
+            }
+
+            try {
+                const result = await accountApiRequest('/api/accounts/credentials', {
+                    method: 'POST',
+                    body: JSON.stringify({ currentPassword, username: newUsername, password: newPassword })
+                });
+                this.setCurrentUser(result.user);
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
         },
 
         // Login Logic
-        login(username, password) {
-            const cleanUser = (username || '').trim().toLowerCase();
-            const cleanPass = (password || '').trim();
-
-            // 1. Check Members
-            const members = this.getMembers();
-            const matchedMember = members.find(m =>
-                (m.username.toLowerCase() === cleanUser || m.phone === cleanUser || (m.email && m.email.toLowerCase() === cleanUser)) &&
-                m.password === cleanPass
-            );
-            if (matchedMember) {
-                const userObj = {
-                    id: matchedMember.id,
-                    username: matchedMember.username,
-                    name: matchedMember.name,
-                    phone: matchedMember.phone,
-                    role: 'member',
-                    plan: matchedMember.plan || 'Gói Hội viên',
-                    avatar: matchedMember.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'
-                };
-                this.setCurrentUser(userObj);
-                return { success: true, user: userObj };
+        async login(username, password, role) {
+            try {
+                const result = await accountApiRequest('/api/accounts/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password, role })
+                });
+                if (!result.admin) this.setCurrentUser(result.user);
+                return result;
+            } catch (error) {
+                return { success: false, error: error.message };
             }
-
-            // 2. Check Coaches
-            const coaches = this.getCoaches();
-            const matchedCoach = coaches.find(c =>
-                (c.id.toLowerCase() === cleanUser || (c.phone && c.phone === cleanUser) || (c.email && c.email.toLowerCase() === cleanUser)) &&
-                (c.password === cleanPass || cleanPass === 'coach123') // Default fallback password for initial coaches
-            );
-            if (matchedCoach) {
-                const userObj = {
-                    id: matchedCoach.id,
-                    username: matchedCoach.id,
-                    name: matchedCoach.name,
-                    phone: matchedCoach.phone || '',
-                    role: 'coach',
-                    coachRole: matchedCoach.role,
-                    cert: matchedCoach.cert,
-                    avatar: matchedCoach.img
-                };
-                this.setCurrentUser(userObj);
-                return { success: true, user: userObj };
-            }
-
-            return { success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác.' };
-        },
-
-        // Member Creation by Admin
-        createMemberAccount(data) {
-            const members = this.getMembers();
-            // Generate clean username from phone or name
-            const username = data.username || `member_${(data.phone || '').replace(/\D/g, '') || Math.floor(1000 + Math.random() * 9000)}`;
-            const password = data.password || Math.random().toString(36).slice(-8);
-
-            const newMember = {
-                id: 'mem_' + Date.now(),
-                name: data.name,
-                phone: data.phone,
-                goal: data.goal || 'Tăng cơ giảm mỡ',
-                plan: data.plan || 'Gói Chốt Thành Công',
-                username: username,
-                password: password,
-                createdAt: new Date().toISOString(),
-                status: 'active'
-            };
-
-            members.push(newMember);
-            this.saveMembers(members);
-            return newMember;
         },
 
         // Coach Application by Public User
-        submitCoachApplication(data) {
-            const apps = this.getCoachApplications();
-            const newApp = {
-                id: 'app_' + Date.now(),
-                name: data.name,
-                phone: data.phone,
-                email: data.email,
-                roleApplied: data.role || 'Huấn luyện viên Thể hình',
-                exp: data.exp || '2 năm kinh nghiệm',
-                cert: data.cert || '',
-                intro: data.intro || '',
-                image: data.image || 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&auto=format&fit=crop&q=80',
-                status: 'pending', // 'pending' | 'approved' | 'rejected'
-                appliedAt: new Date().toISOString()
-            };
-            apps.unshift(newApp);
-            this.saveCoachApplications(apps);
-            return newApp;
+        async submitCoachApplication(data) {
+            return await accountApiRequest('/api/coach-applications', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
         },
 
-        // Coach Approval & Account Provisioning by Admin
-        approveCoachApplication(appId, customPassword) {
-            const apps = this.getCoachApplications();
-            const app = apps.find(a => a.id === appId);
-            if (!app) throw new Error('Không tìm thấy đơn ứng tuyển.');
-
-            const coaches = this.getCoaches();
-            const coachId = 'coach-' + (app.phone ? app.phone.slice(-4) : Math.floor(1000 + Math.random() * 9000));
-            const password = customPassword || 'coach123';
-
-            const newCoach = {
-                id: coachId,
-                name: app.name,
-                role: app.roleApplied,
-                desc: app.intro || 'Huấn luyện viên The Ocean Gym',
-                exp: app.exp,
-                cert: app.cert,
-                img: app.image,
-                phone: app.phone,
-                email: app.email,
-                password: password,
-                status: 'active'
-            };
-
-            coaches.push(newCoach);
-            this.saveCoaches(coaches);
-
-            // Update application status
-            app.status = 'approved';
-            app.coachId = coachId;
-            app.accountCreated = {
-                username: coachId,
-                password: password
-            };
-            this.saveCoachApplications(apps);
-
-            return { coach: newCoach, credentials: app.accountCreated };
+        // Booking creation by visitors and members
+        async getAccountBookings() {
+            const bookings = await accountApiRequest('/api/accounts/bookings');
+            return bookings.map(booking => ({
+                id: booking.id,
+                memberId: booking.memberId,
+                memberName: booking.memberName,
+                memberPhone: booking.memberPhone,
+                coachId: booking.coachId,
+                coachName: booking.coachName,
+                date: booking.date,
+                timeSlot: booking.timeSlot,
+                note: booking.note || '',
+                status: booking.status,
+                createdAt: booking.createdAt
+            }));
         },
 
-        // Booking creation by Member
-        bookSession(bookingData) {
+        async bookSession(bookingData) {
+            let user = this.getCurrentUser();
+            if (user) {
+                const session = await this.restoreAccountSession();
+                user = session.authenticated ? session.user : null;
+                if (!user) {
+                    throw new Error('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại trước khi đặt lịch.');
+                }
+            }
+            if (user && user.role === 'coach') {
+                throw new Error('Phiên hiện tại đang đăng nhập vai trò huấn luyện viên. Hãy đăng xuất rồi đăng nhập lại bằng tab Hội viên để đặt lịch.');
+            }
+            const booking = await accountApiRequest(
+                user ? '/api/accounts/bookings' : '/api/public/bookings',
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        coachId: bookingData.coachId,
+                        date: bookingData.date,
+                        timeSlot: bookingData.timeSlot,
+                        note: bookingData.note || '',
+                        memberName: bookingData.memberName,
+                        memberPhone: bookingData.memberPhone
+                    })
+                }
+            );
             const bookings = this.getBookings();
-            const newBooking = {
-                id: 'book_' + Date.now(),
-                memberId: bookingData.memberId,
-                memberName: bookingData.memberName,
-                memberPhone: bookingData.memberPhone,
-                coachId: bookingData.coachId,
-                coachName: bookingData.coachName,
-                date: bookingData.date,
-                timeSlot: bookingData.timeSlot,
-                note: bookingData.note || '',
-                status: 'confirmed', // 'confirmed' | 'completed' | 'cancelled'
-                createdAt: new Date().toISOString()
-            };
-            bookings.unshift(newBooking);
+            bookings.unshift(booking);
             this.saveBookings(bookings);
-            return newBooking;
+            return booking;
+        },
+
+        async updateBookingStatus(bookingId, status) {
+            const booking = await accountApiRequest(`/api/accounts/bookings/${encodeURIComponent(bookingId)}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status })
+            });
+            const bookings = this.getBookings();
+            const localBooking = bookings.find(item => item.id === booking.id);
+            if (localBooking) localBooking.status = booking.status;
+            this.saveBookings(bookings);
+            return booking;
         },
 
         // Reviews
@@ -497,18 +538,37 @@
             return newMsg;
         },
 
-        // Update Coach Profile (by Coach login)
-        updateCoachProfile(coachId, updateData) {
-            const coaches = this.getCoaches();
-            const coach = coaches.find(c => c.id === coachId);
-            if (!coach) throw new Error('Không tìm thấy huấn luyện viên.');
+        async getChatConversations() {
+            return await accountApiRequest('/api/accounts/conversations');
+        },
 
-            if (updateData.cert !== undefined) coach.cert = updateData.cert;
-            if (updateData.exp !== undefined) coach.exp = updateData.exp;
-            if (updateData.desc !== undefined) coach.desc = updateData.desc;
-            if (updateData.role !== undefined) coach.role = updateData.role;
-            if (updateData.img !== undefined) coach.img = updateData.img;
-            if (updateData.phone !== undefined) coach.phone = updateData.phone;
+        async getChatMessages(conversationId) {
+            return await accountApiRequest(
+                `/api/accounts/conversations/${encodeURIComponent(conversationId)}/messages`
+            );
+        },
+
+        async sendChatMessage(conversationId, text) {
+            return await accountApiRequest(
+                `/api/accounts/conversations/${encodeURIComponent(conversationId)}/messages`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ text })
+                }
+            );
+        },
+
+        // Update Coach Profile (by Coach login)
+        async updateCoachProfile(coachId, updateData) {
+            const result = await accountApiRequest('/api/accounts/coach-profile', {
+                method: 'PATCH',
+                body: JSON.stringify(updateData)
+            });
+            const coaches = this.getCoaches();
+            const index = coaches.findIndex(coach => coach.id === coachId);
+            const coach = result.coach;
+            if (index === -1) coaches.push(coach);
+            else coaches[index] = coach;
 
             this.saveCoaches(coaches);
             return coach;
