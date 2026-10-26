@@ -2007,7 +2007,9 @@
                     if (coachLinks) coachLinks.classList.remove('hidden');
                 } else {
                     if (userBadge) {
-                        userBadge.textContent = user.plan ? 'HỘI VIÊN' : 'VIP';
+                        userBadge.textContent = user.plan
+                            ? (i18n[activeLanguage] && i18n[activeLanguage].auth_member_badge ? i18n[activeLanguage].auth_member_badge : 'HỘI VIÊN')
+                            : 'VIP';
                         userBadge.className = 'text-[9px] px-1.5 py-0.5 rounded bg-brand-red text-white font-extrabold uppercase tracking-wider';
                     }
                     if (memberLinks) memberLinks.classList.remove('hidden');
@@ -2015,16 +2017,21 @@
                 }
 
                 if (mobileAuthSection) {
+                    const t = (typeof i18n !== 'undefined' && i18n[activeLanguage]) ? i18n[activeLanguage] : {};
+                    const roleLabel = user.role === 'coach'
+                        ? (t.auth_role_coach || 'Huấn Luyện Viên')
+                        : (t.auth_role_member ? t.auth_role_member + ' The Ocean' : 'Hội Viên The Ocean');
+                    const logoutText = t.auth_logout || 'Đăng xuất';
                     mobileAuthSection.innerHTML = `
                         <div class="p-3 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <img src="${avatar}" class="w-7 h-7 rounded-full object-cover" />
                                 <div>
                                     <div class="text-xs font-bold text-white">${user.name}</div>
-                                    <div class="text-[10px] text-gray-400">${user.role === 'coach' ? 'Huấn Luyện Viên' : 'Hội Viên The Ocean'}</div>
+                                    <div class="text-[10px] text-gray-400">${roleLabel}</div>
                                 </div>
                             </div>
-                            <button onclick="handleLogout()" class="text-xs text-red-400 font-bold hover:underline">Đăng xuất</button>
+                            <button onclick="handleLogout()" class="text-xs text-red-400 font-bold hover:underline">${logoutText}</button>
                         </div>
                     `;
                 }
