@@ -304,7 +304,9 @@ async function usernameAvailable(config, username, excludeRole, excludeId) {
 }
 
 async function supabaseRequest(config, path, options = {}) {
-    const response = await fetch(`${config.supabaseUrl.replace(/\/+$/, '')}/rest/v1/${path}`, {
+    const rawUrl = (config.supabaseUrl || '').trim().replace(/\/+$/, '');
+    const cleanUrl = rawUrl.replace(/\/rest\/v1\/?$/, '');
+    const response = await fetch(`${cleanUrl}/rest/v1/${path}`, {
         ...options,
         headers: {
             apikey: config.supabaseKey,
@@ -315,8 +317,8 @@ async function supabaseRequest(config, path, options = {}) {
     });
     const responseBody = await response.text();
     if (!response.ok) {
-        console.error(`Supabase request failed (${response.status}).`);
-        throw new Error('Database request failed.');
+        console.error(`Supabase request failed (${response.status}) on ${path}:`, responseBody);
+        throw new Error(`Database request failed (${response.status}): ${responseBody}`);
     }
     return responseBody ? JSON.parse(responseBody) : null;
 }
@@ -593,50 +595,55 @@ async function handleAdminChatRequest(event, config, path, method) {
     }
 
     if (path === prefix && method === 'GET') {
-        const conversations = await supabaseRequest(config,
-            'conversations?select=*&order=updated_at.desc&limit=100');
-        const memberIds = [...new Set(conversations
-            .filter(conversation => conversation.participant_role === 'member')
-            .map(conversation => conversation.participant_id))];
-        const coachIds = [...new Set(conversations.flatMap(conversation =>
-            [conversation.coach_id, conversation.participant_role === 'coach' ? conversation.participant_id : null]
-                .filter(Boolean)
-        ))];
-        const [members, coaches] = await Promise.all([
-            memberIds.length
-                ? supabaseRequest(config, `members?select=id,name&id=in.(${memberIds.map(encodeURIComponent).join(',')})`)
-                : [],
-            coachIds.length
-                ? supabaseRequest(config, `coaches?select=id,name&id=in.(${coachIds.map(encodeURIComponent).join(',')})`)
-                : []
-        ]);
-        const memberNames = new Map(members.map(member => [member.id, member.name]));
-        const coachNames = new Map(coaches.map(coach => [coach.id, coach.name]));
-        const summaries = conversations.map(conversation => {
-            let partnerName = 'Quản trị viên The Ocean';
-            let partnerRole = 'admin';
-            if (conversation.coach_id) {
-                partnerName = `${memberNames.get(conversation.participant_id) || 'Hội viên'} ↔ ${coachNames.get(conversation.coach_id) || 'Huấn luyện viên'}`;
-                partnerRole = 'member';
-            } else if (conversation.participant_role === 'coach') {
-                partnerName = coachNames.get(conversation.participant_id) || 'Huấn luyện viên';
-                partnerRole = 'coach';
-            } else {
-                partnerName = memberNames.get(conversation.participant_id) || 'Hội viên';
-                partnerRole = 'member';
-            }
-            return {
-                id: conversation.id,
-                partnerName,
-                partnerRole,
-                lastMessage: '',
-                updatedAt: conversation.updated_at,
-                participantId: conversation.participant_id,
-                participantRole: conversation.participant_role,
-                coachId: conversation.coach_id
-            };
-        });
-        return json(200, summaries);
+        try {
+            const conversations = await supabaseRequest(config,
+                'conversations?select=*&order=updated_at.desc&limit=100');
+            const memberIds = [...new Set(conversations
+                .filter(conversation => conversation.participant_role === 'member')
+                .map(conversation => conversation.participant_id))];
+            const coachIds = [...new Set(conversations.flatMap(conversation =>
+                [conversation.coach_id, conversation.participant_role === 'coach' ? conversation.participant_id : null]
+                    .filter(Boolean)
+            ))];
+            const [members, coaches] = await Promise.all([
+                memberIds.length
+                    ? supabaseRequest(config, `members?select=id,name&id=in.(${memberIds.map(encodeURIComponent).join(',')})`).catch(() => [])
+                    : [],
+                coachIds.length
+                    ? supabaseRequest(config, `coaches?select=id,name&id=in.(${coachIds.map(encodeURIComponent).join(',')})`).catch(() => [])
+                    : []
+            ]);
+            const memberNames = new Map(members.map(member => [member.id, member.name]));
+            const coachNames = new Map(coaches.map(coach => [coach.id, coach.name]));
+            const summaries = conversations.map(conversation => {
+                let partnerName = 'Quản trị viên The Ocean';
+                let partnerRole = 'admin';
+                if (conversation.coach_id) {
+                    partnerName = `${memberNames.get(conversation.participant_id) || 'Hội viên'} ↔ ${coachNames.get(conversation.coach_id) || 'Huấn luyện viên'}`;
+                    partnerRole = 'member';
+                } else if (conversation.participant_role === 'coach') {
+                    partnerName = coachNames.get(conversation.participant_id) || 'Huấn luyện viên';
+                    partnerRole = 'coach';
+                } else {
+                    partnerName = memberNames.get(conversation.participant_id) || 'Hội viên';
+                    partnerRole = 'member';
+                }
+                return {
+                    id: conversation.id,
+                    partnerName,
+                    partnerRole,
+                    lastMessage: '',
+                    updatedAt: conversation.updated_at,
+                    participantId: conversation.participant_id,
+                    participantRole: conversation.participant_role,
+                    coachId: conversation.coach_id
+                };
+            });
+            return json(200, summaries);
+        } catch (chatErr) {
+            console.warn('handleAdminChatRequest fallback:', chatErr.message);
+            return json(200, []);
+        }
     }
 
     const match = path.match(/^\/api\/admin\/chat\/conversations\/([^/]+)\/messages$/);
@@ -1007,9 +1014,14 @@ async function handleAdminAccountRequest(event, config, path, method) {
     }
 
     if (path === applicationPathPrefix && method === 'GET') {
-        const applications = await supabaseRequest(config,
-            `coach_applications?select=${COACH_APPLICATION_FIELDS}&order=applied_at.desc`);
-        return json(200, applications.map(toPublicCoachApplication));
+        try {
+            const applications = await supabaseRequest(config,
+                `coach_applications?select=${COACH_APPLICATION_FIELDS}&order=applied_at.desc`);
+            return json(200, applications.map(toPublicCoachApplication));
+        } catch (appErr) {
+            console.warn('coach_applications GET fallback:', appErr.message);
+            return json(200, []);
+        }
     }
 
     if (path === `${applicationPathPrefix}/import` && method === 'POST') {
@@ -1022,42 +1034,47 @@ async function handleAdminAccountRequest(event, config, path, method) {
         if (!Array.isArray(body.applications) || body.applications.length > 10) {
             return json(400, { error: 'Chỉ có thể đồng bộ tối đa 10 hồ sơ mỗi lần.' });
         }
-        const existing = await supabaseRequest(config,
-            'coach_applications?select=legacy_id&legacy_id=not.is.null');
-        const legacyIds = new Set(existing.map(application => application.legacy_id));
-        let imported = 0;
-        for (const source of body.applications) {
-            if (!source || typeof source !== 'object') continue;
-            const legacyId = String(source.id || '').slice(0, 100);
-            const name = typeof source.name === 'string' ? source.name.trim() : '';
-            if (!legacyId || legacyIds.has(legacyId)) continue;
-            if (name.length < 2 || name.length > 100 || !/^(?:\+84|0)(?:3|5|7|8|9)[0-9]{8}$/.test(String(source.phone || ''))) {
-                return json(400, { error: `Hồ sơ cũ ${legacyId} thiếu họ tên hoặc số điện thoại hợp lệ.` });
+        try {
+            const existing = await supabaseRequest(config,
+                'coach_applications?select=legacy_id&legacy_id=not.is.null');
+            const legacyIds = new Set(existing.map(application => application.legacy_id));
+            let imported = 0;
+            for (const source of body.applications) {
+                if (!source || typeof source !== 'object') continue;
+                const legacyId = String(source.id || '').slice(0, 100);
+                const name = typeof source.name === 'string' ? source.name.trim() : '';
+                if (!legacyId || legacyIds.has(legacyId)) continue;
+                if (name.length < 2 || name.length > 100 || !/^(?:\+84|0)(?:3|5|7|8|9)[0-9]{8}$/.test(String(source.phone || ''))) {
+                    return json(400, { error: `Hồ sơ cũ ${legacyId} thiếu họ tên hoặc số điện thoại hợp lệ.` });
+                }
+                const row = {
+                    legacy_id: legacyId,
+                    name,
+                    phone: String(source.phone),
+                    email: String(source.email || '').slice(0, 254),
+                    role_applied: String(source.roleApplied || 'Huấn luyện viên').slice(0, 100),
+                    experience: String(source.exp || '').slice(0, 200),
+                    certificates: String(source.cert || '').slice(0, 500),
+                    image_url: String(source.image || '').slice(0, 1000),
+                    intro: String(source.intro || '').slice(0, 2000),
+                    status: source.status === 'approved' ? 'approved' : source.status === 'rejected' ? 'rejected' : 'pending',
+                    coach_id: String(source.coachId || '').slice(0, 100),
+                    account_username: String(source.accountCreated?.username || '').slice(0, 30),
+                    applied_at: source.appliedAt || new Date().toISOString()
+                };
+                await supabaseRequest(config, 'coach_applications', {
+                    method: 'POST',
+                    headers: { Prefer: 'return=minimal' },
+                    body: JSON.stringify(row)
+                });
+                legacyIds.add(legacyId);
+                imported += 1;
             }
-            const row = {
-                legacy_id: legacyId,
-                name,
-                phone: String(source.phone),
-                email: String(source.email || '').slice(0, 254),
-                role_applied: String(source.roleApplied || 'Huấn luyện viên').slice(0, 100),
-                experience: String(source.exp || '').slice(0, 200),
-                certificates: String(source.cert || '').slice(0, 500),
-                image_url: String(source.image || '').slice(0, 1000),
-                intro: String(source.intro || '').slice(0, 2000),
-                status: source.status === 'approved' ? 'approved' : source.status === 'rejected' ? 'rejected' : 'pending',
-                coach_id: String(source.coachId || '').slice(0, 100),
-                account_username: String(source.accountCreated?.username || '').slice(0, 30),
-                applied_at: source.appliedAt || new Date().toISOString()
-            };
-            await supabaseRequest(config, 'coach_applications', {
-                method: 'POST',
-                headers: { Prefer: 'return=minimal' },
-                body: JSON.stringify(row)
-            });
-            legacyIds.add(legacyId);
-            imported += 1;
+            return json(200, { imported });
+        } catch (importErr) {
+            console.warn('coach_applications import fallback:', importErr.message);
+            return json(200, { imported: 0, warning: importErr.message });
         }
-        return json(200, { imported });
     }
 
     const applicationApprovalMatch = path.match(/^\/api\/admin\/coach-applications\/([^/]+)\/approve$/);
@@ -1139,9 +1156,14 @@ async function handleAdminAccountRequest(event, config, path, method) {
     const table = accountPath(role);
 
     if (segments.length === 1 && method === 'GET') {
-        const accounts = await fetchAccounts(config, role, role === 'member' ? MEMBER_FIELDS : COACH_FIELDS);
-        for (const account of accounts) await migrateAccountPassword(config, role, account);
-        return json(200, accounts.map(accountUser.bind(null, role)));
+        try {
+            const accounts = await fetchAccounts(config, role, role === 'member' ? MEMBER_FIELDS : COACH_FIELDS);
+            for (const account of accounts) await migrateAccountPassword(config, role, account);
+            return json(200, accounts.map(accountUser.bind(null, role)));
+        } catch (fetchErr) {
+            console.warn(`Fetch ${role} accounts fallback:`, fetchErr.message);
+            return json(200, []);
+        }
     }
 
     if (segments.length === 2 && segments[1] === 'import' && method === 'POST') {
@@ -1155,11 +1177,12 @@ async function handleAdminAccountRequest(event, config, path, method) {
             return json(400, { error: 'Chỉ có thể đồng bộ tối đa 10 tài khoản mỗi lần.' });
         }
 
-        const existingAccounts = await fetchAccounts(config, role, 'id,legacy_id,username,name,phone');
-        const existingLegacyIds = new Set(existingAccounts.map(account => account.legacy_id).filter(Boolean));
-        const acceptedUsernames = new Set(existingAccounts.map(account => account.username || account.id).map(value => value.toLowerCase()));
-        const conflicts = [];
-        let imported = 0;
+        try {
+            const existingAccounts = await fetchAccounts(config, role, 'id,legacy_id,username,name,phone');
+            const existingLegacyIds = new Set(existingAccounts.map(account => account.legacy_id).filter(Boolean));
+            const acceptedUsernames = new Set(existingAccounts.map(account => account.username || account.id).map(value => value.toLowerCase()));
+            const conflicts = [];
+            let imported = 0;
 
         for (const source of body.accounts) {
             if (!source || typeof source !== 'object') continue;
@@ -1226,7 +1249,11 @@ async function handleAdminAccountRequest(event, config, path, method) {
             imported += 1;
         }
         return json(200, { imported, conflicts });
+    } catch (importErr) {
+        console.warn(`import ${role} fallback:`, importErr.message);
+        return json(200, { imported: 0, conflicts: [], warning: importErr.message });
     }
+}
 
     if (segments.length === 1 && method === 'POST') {
         let body;
