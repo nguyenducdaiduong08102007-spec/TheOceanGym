@@ -2,12 +2,25 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "20"
+
 [functions]
   node_bundler = "esbuild"
 
 [[redirects]]
   from = "/"
   to = "/html/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/html/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin.html"
+  to = "/html/admin.html"
   status = 200
 
 [[redirects]]
@@ -35,3 +48,28 @@
   from = "/netlify/functions/*"
   to = "/404.html"
   status = 404
+
+# Security headers for all pages
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache static assets aggressively
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

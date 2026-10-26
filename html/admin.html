@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Ocean Gym - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0A0A'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='14' fill='%23E50914'%3ETO%3C/text%3E%3C/svg%3E">
+
     <style>
         :root {
             --bg: #0a0a0a;
@@ -269,6 +273,12 @@
             margin-top: 28px;
         }
 
+        .admin-chat-layout {
+            display: grid;
+            grid-template-columns: minmax(190px, 0.7fr) minmax(0, 1.6fr);
+            gap: 12px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -276,6 +286,25 @@
         }
 
         .panel { overflow-x: auto; }
+
+        .member-account-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .member-account-table th:last-child,
+        .member-account-table td.account-actions-cell {
+            position: sticky;
+            right: 0;
+            z-index: 1;
+            background: var(--panel);
+            white-space: nowrap;
+            box-shadow: -10px 0 14px rgba(0,0,0,0.28);
+        }
+
+        .member-account-table th:last-child {
+            z-index: 2;
+        }
 
         th, td {
             text-align: left;
@@ -336,86 +365,11 @@
             border-radius: inherit;
         }
 
-        .login-shell {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 32px 16px;
-        }
-
-        .login-card {
-            width: min(100%, 440px);
-            background: rgba(24,24,24,0.9);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 28px 24px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.35);
-        }
-
-        .login-card h1 {
-            margin: 8px 0 10px;
-            font-size: clamp(1.8rem, 2vw, 2.2rem);
-            letter-spacing: -0.06em;
-        }
-
-        .login-subtitle {
-            color: var(--muted);
-            margin-bottom: 22px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            color: var(--muted);
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-size: 15px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: rgba(229,9,20,0.8);
-            box-shadow: 0 0 0 3px rgba(229,9,20,0.12);
-        }
-
-        .login-error {
-            margin-top: 12px;
-            color: #fca5a5;
-            background: rgba(127,29,29,0.2);
-            border: 1px solid rgba(127,29,29,0.7);
-            padding: 10px 12px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .demo-box {
-            margin-top: 18px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed var(--border);
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
         @media (max-width: 860px) {
             .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .two-col { grid-template-columns: 1fr; }
+            .admin-chat-layout { grid-template-columns: 1fr; }
+            #adminChatConversations { max-height: 160px !important; }
             .hero { flex-direction: column; align-items: start; }
         }
 
@@ -426,33 +380,6 @@
     </style>
 </head>
 <body>
-    <div id="login-screen" class="login-shell">
-        <div class="login-card">
-            <div class="brand"><strong>The</strong> Ocean <span style="color: var(--muted);">Admin</span></div>
-            <h1>Đăng nhập quản trị</h1>
-            <p class="login-subtitle">Quản lý doanh thu, hội viên và hiệu suất gym.</p>
-
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <label for="admin-email">Email</label>
-                    <input id="admin-email" type="email" autocomplete="username" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="admin-password">Mật khẩu</label>
-                    <input id="admin-password" type="password" autocomplete="current-password" required />
-                </div>
-
-                <button type="submit" class="primary-btn" style="width: 100%; padding: 14px 18px; font-size: 12px;">Đăng nhập</button>
-                <div id="login-error" class="login-error" role="alert"></div>
-            </form>
-
-            <div class="demo-box">
-                Thông tin đăng nhập được cấu hình qua biến môi trường khi khởi động máy chủ. Không sử dụng mật khẩu mẫu.
-            </div>
-        </div>
-    </div>
-
     <div id="admin-screen" class="page-shell hidden">
         <header class="topbar">
             <div class="topbar-inner">
@@ -500,34 +427,278 @@
                 <div id="revenueChart" class="revenue-chart"></div>
             </section>
 
-            <section class="two-col">
+            <!-- ADMIN NAVIGATION TABS -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 30px 0 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <button type="button" class="admin-tab active" data-tab="tab-leads" onclick="switchAdminTab('tab-leads')" style="padding: 10px 18px; border-radius: 10px; background: var(--brand); color: white; border: none; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; letter-spacing: 0.05em;">📋 Tư vấn & Cấp TK Học viên</button>
+                <button type="button" class="admin-tab" data-tab="tab-coaches" onclick="switchAdminTab('tab-coaches')" style="padding: 10px 18px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; letter-spacing: 0.05em;">💪 Tuyển dụng & Quản lý HLV</button>
+                <button type="button" class="admin-tab" data-tab="tab-bookings" onclick="switchAdminTab('tab-bookings')" style="padding: 10px 18px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; letter-spacing: 0.05em;">📅 Lịch tập Học viên (PT Bookings)</button>
+                <button type="button" class="admin-tab" data-tab="tab-community" onclick="switchAdminTab('tab-community')" style="padding: 10px 18px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; letter-spacing: 0.05em;">⭐ Đánh giá & Cộng đồng</button>
+                <button type="button" class="admin-tab" data-tab="tab-chat" onclick="switchAdminTab('tab-chat')" style="padding: 10px 18px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; letter-spacing: 0.05em;">💬 Chat Hỗ Trợ (Live)</button>
+            </div>
+
+            <!-- TAB 1: YÊU CẦU TƯ VẤN & CẤP TÀI KHOẢN HỌC VIÊN -->
+            <div id="tab-leads" class="admin-tab-content">
+                <section class="two-col" style="margin-top: 0;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Yêu cầu tư vấn mới</h2>
+                                <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Khách hàng gửi form từ website — bấm "Cấp tài khoản" khi chốt gói tập</p>
+                            </div>
+                            <span class="tag">Mới nhất</span>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Mục tiêu</th>
+                                    <th>Điện thoại</th>
+                                    <th>Thời gian</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationsTable"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Mục tiêu đăng ký</h2>
+                            <span class="tag">Tổng hợp</span>
+                        </div>
+                        <div id="packageList" class="package-list"></div>
+                    </div>
+                </section>
+
+                <!-- BẢNG HỌC VIÊN ĐÃ ĐƯỢC CẤP TÀI KHOẢN -->
+                <div class="panel" style="margin-top: 24px;">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Danh sách Học viên đã cấp tài khoản</h2>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Dùng cột Thao tác bên phải để vô hiệu hóa, kích hoạt lại hoặc xóa tài khoản.</p>
+                        </div>
+                        <button type="button" class="primary-btn" onclick="openManualCreateMemberModal()">+ Thêm học viên trực tiếp</button>
+                    </div>
+                    <table class="member-account-table">
+                        <thead>
+                            <tr>
+                                <th>Học viên</th>
+                                <th>Số điện thoại</th>
+                                <th>Gói tập</th>
+                                <th>Tên đăng nhập</th>
+                                <th>Bảo mật mật khẩu</th>
+                                <th>Ngày cấp</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeMembersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: TUYỂN DỤNG & CẤP TÀI KHOẢN HLV -->
+            <div id="tab-coaches" class="admin-tab-content hidden">
                 <div class="panel">
                     <div class="panel-header">
-                        <h2>Yêu cầu tư vấn mới</h2>
-                        <span class="tag">Mới nhất</span>
+                        <div>
+                            <h2>Hồ sơ Huấn luyện viên ứng tuyển (Apply mới)</h2>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Khi duyệt & cấp tài khoản, thông tin Huấn luyện viên sẽ tự động hiển thị lên website</p>
+                        </div>
+                        <span id="pendingCoachCount" class="tag">0 chờ duyệt</span>
                     </div>
                     <table>
                         <thead>
                             <tr>
-                                <th>Họ tên</th>
-                                <th>Mục tiêu</th>
-                                <th>Điện thoại</th>
-                                <th>Thời gian</th>
+                                <th>Huấn luyện viên</th>
+                                <th>Chuyên môn / Vị trí</th>
+                                <th>Kinh nghiệm & Bằng cấp</th>
+                                <th>Liên hệ</th>
+                                <th>Thời gian nộp</th>
+                                <th>Hành động</th>
                             </tr>
                         </thead>
-                        <tbody id="registrationsTable"></tbody>
+                        <tbody id="coachApplicationsTable"></tbody>
                     </table>
                 </div>
 
+                <div class="panel" style="margin-top: 24px;">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Đội ngũ Huấn luyện viên chính thức (Hiển thị trên Web)</h2>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Đang hoạt động và nhận lịch tập của hội viên</p>
+                        </div>
+                    </div>
+                    <div id="adminCoachesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: QUẢN LÝ LỊCH TẬP PT (BOOKINGS) -->
+            <div id="tab-bookings" class="admin-tab-content hidden">
                 <div class="panel">
                     <div class="panel-header">
-                        <h2>Mục tiêu đăng ký</h2>
-                        <span class="tag">Tổng hợp</span>
+                        <div>
+                            <h2>Lịch tập Học viên đã đặt với Huấn luyện viên</h2>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Theo dõi ca tập cá nhân 1 kèm 1 tại Studio Tầng 3</p>
+                        </div>
+                        <span id="bookingCountBadge" class="tag">0 ca tập</span>
                     </div>
-                    <div id="packageList" class="package-list"></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Học viên</th>
+                                <th>Số điện thoại</th>
+                                <th>Huấn luyện viên</th>
+                                <th>Ngày tập</th>
+                                <th>Khung giờ</th>
+                                <th>Ghi chú mục tiêu</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBookingsTable"></tbody>
+                    </table>
                 </div>
-            </section>
+            </div>
+
+            <!-- TAB 4: ĐÁNH GIÁ & CỘNG ĐỒNG -->
+            <div id="tab-community" class="admin-tab-content hidden">
+                <div class="two-col" style="margin-top: 0;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Đánh giá phòng gym & Huấn luyện viên</h2>
+                            <span class="tag">Reviews</span>
+                        </div>
+                        <div id="adminReviewsList" style="display: grid; gap: 14px;"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Bài viết cộng đồng hội viên</h2>
+                            <span class="tag">Community Feed</span>
+                        </div>
+                        <div id="adminCommunityPostsList" style="display: grid; gap: 14px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: CHAT HỖ TRỢ TRỰC TUYẾN -->
+            <div id="tab-chat" class="admin-tab-content hidden">
+                <div class="panel" style="max-width: 1000px; margin: 0 auto;">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Hộp thư hỗ trợ trực tiếp (Admin & Coaches & Members)</h2>
+                            <p style="font-size: 12px; color: var(--muted); margin: 4px 0 0;">Trao đổi thông tin giữa Ban quản trị, Học viên và Huấn luyện viên</p>
+                        </div>
+                        <span class="status-pill"><span class="status-dot"></span> Trực tuyến</span>
+                    </div>
+                    <div class="admin-chat-layout">
+                        <div id="adminChatConversations" aria-label="Danh sách hội thoại" style="border: 1px solid var(--border); border-radius: 12px; padding: 8px; background: rgba(0,0,0,0.3); overflow-y: auto; max-height: 480px;"></div>
+                        <div style="min-width: 0;">
+                            <div id="adminChatMessages" aria-live="polite" style="height: 380px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;"></div>
+                            <form id="adminChatForm" onsubmit="handleAdminSendMessage(event)" style="display: flex; gap: 10px;">
+                                <input id="adminChatInput" type="text" maxlength="2000" placeholder="Chọn hội thoại để trả lời..." required disabled style="flex: 1; min-width: 0; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);" />
+                                <button type="submit" class="primary-btn" disabled>Gửi tin ↗</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
+    </div>
+
+    <!-- MODAL: CẤP TÀI KHOẢN HỌC VIÊN -->
+    <div id="provision-member-modal" class="hidden" role="dialog" aria-modal="true" style="position: fixed; inset: 0; z-index: 25; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 20px;">
+        <div class="login-card" style="width: min(100%, 500px);">
+            <div class="brand"><strong>The</strong> Ocean <span>• Cấp Tài Khoản</span></div>
+            <h2 style="margin: 10px 0 6px; font-size: 1.5rem;">Cấp tài khoản Học viên</h2>
+            <p class="login-subtitle" style="margin-bottom: 18px;">Khách hàng đã chốt mua gói tập sẽ dùng thông tin này để đăng nhập web.</p>
+            
+            <form id="provision-member-form" onsubmit="handleProvisionMemberSubmit(event)">
+                <input type="hidden" id="prov-reg-id" />
+                <div class="form-group">
+                    <label>Họ và tên học viên</label>
+                    <input id="prov-name" type="text" required />
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input id="prov-phone" type="tel" required />
+                </div>
+                <div class="form-group">
+                    <label>Gói tập đăng ký</label>
+                    <select id="prov-plan" style="width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);">
+                        <option value="Gói Chuyển Hóa (Transformation)">Gói Chuyển Hóa (Transformation - 5 buổi/tuần)</option>
+                        <option value="Gói VIP 1 Kèm 1 (Private PT)">Gói VIP 1 Kèm 1 (Private PT Tầng 3)</option>
+                        <option value="Gói Cơ Bản (Essential)">Gói Cơ Bản (Essential - 3 buổi/tuần)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tên đăng nhập (Username)</label>
+                    <input id="prov-username" type="text" required placeholder="member_0901234567" />
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu khởi tạo</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="prov-password" type="text" required style="flex: 1;" />
+                        <button type="button" class="secondary-btn" onclick="generateRandomMemberPassword()">Tạo mới</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="logout-btn" onclick="closeProvisionMemberModal()">Đóng</button>
+                    <button type="submit" class="primary-btn">Xác nhận & Cấp tài khoản</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CHI TIẾT TÀI KHOẢN VỪA CẤP (COPY GỬI ZALO) -->
+    <div id="credential-popup-modal" class="hidden" role="dialog" aria-modal="true" style="position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 20px;">
+        <div class="login-card" style="width: min(100%, 460px); text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 10px;">🎉</div>
+            <h2 id="credential-popup-title" style="margin: 0 0 8px; font-size: 1.4rem; color: var(--green);">Cấp tài khoản thành công!</h2>
+            <p id="credential-popup-description" style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Sao chép tin nhắn bên dưới để gửi cho người nhận qua Zalo / SMS:</p>
+            
+            <textarea id="credentialCopyText" readonly rows="10" style="width: 100%; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: #fff; padding: 12px; font-family: monospace; font-size: 13px; resize: vertical;"></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 18px;">
+                <button type="button" class="secondary-btn" style="flex: 1;" onclick="closeCredentialModal()">Xong</button>
+                <button type="button" class="primary-btn" style="flex: 1;" onclick="copyCredentialText()">📋 Sao chép tin nhắn</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DUYỆT & CẤP TÀI KHOẢN HUẤN LUYỆN VIÊN -->
+    <div id="approve-coach-modal" class="hidden" role="dialog" aria-modal="true" style="position: fixed; inset: 0; z-index: 25; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 20px;">
+        <div class="login-card" style="width: min(100%, 500px);">
+            <div class="brand"><strong>The</strong> Ocean <span>• Duyệt HLV</span></div>
+            <h2 style="margin: 10px 0 6px; font-size: 1.5rem;">Duyệt & Cấp tài khoản HLV</h2>
+            <p class="login-subtitle" style="margin-bottom: 18px;">Sau khi duyệt, HLV sẽ được cấp quyền đăng nhập và hồ sơ sẽ tự động xuất hiện trên website.</p>
+            
+            <form id="approve-coach-form" onsubmit="handleApproveCoachSubmit(event)">
+                <input type="hidden" id="app-coach-id" />
+                <div class="form-group">
+                    <label>Họ và tên Huấn luyện viên</label>
+                    <input id="app-coach-name" type="text" readonly style="opacity: 0.8;" />
+                </div>
+                <div class="form-group">
+                    <label>Chuyên môn / Vị trí</label>
+                    <input id="app-coach-role" type="text" readonly style="opacity: 0.8;" />
+                </div>
+                <div class="form-group">
+                    <label>Bằng cấp & Chứng chỉ</label>
+                    <input id="app-coach-cert" type="text" readonly style="opacity: 0.8;" />
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu đăng nhập cho HLV</label>
+                    <input id="app-coach-password" type="text" value="coach123" required />
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="logout-btn" onclick="closeApproveCoachModal()">Hủy</button>
+                    <button type="submit" class="primary-btn" style="background: var(--green);">Duyệt & Đưa lên Website ↗</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="revenue-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="revenue-title" style="position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.8); display: grid; place-items: center; padding: 20px;">
@@ -546,6 +717,8 @@
         </form>
     </div>
 
+    <!-- Core App Engine & Admin Script -->
+    <script src="../js/ocean-app.js"></script>
     <script src="../js/admin.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "name": "the-ocean-gym",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Ocean Gym - Private Gym website with Netlify Functions backend",
+  "engines": {
+    "node": ">=18"
+  }
+}
