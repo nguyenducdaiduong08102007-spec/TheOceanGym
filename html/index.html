@@ -180,7 +180,7 @@
                 <div id="nav-user-container" class="relative inline-block text-left">
                     <button id="nav-login-btn" onclick="openAuthModal()" class="px-3 py-1.5 rounded-full border border-brand-red/60 bg-brand-red/10 text-white hover:bg-brand-red text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-sm">
                         <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                        <span>Đăng nhập</span>
+                        <span data-i18n="auth_login_btn">Đăng nhập</span>
                     </button>
                     <div id="nav-user-menu" class="hidden relative">
                         <button onclick="toggleUserDropdown(event)" class="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition">
@@ -190,19 +190,18 @@
                         </button>
                         <div id="nav-user-dropdown" class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1">
                             <div id="nav-menu-member-links">
-                                <button onclick="openBookingModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Đặt lịch với HLV</button>
-                                <button onclick="openMemberPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📋 Lịch tập của tôi</button>
-                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💬 Hộp thư & Chat</button>
-                                <button onclick="openReviewModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">⭐ Đánh giá Phòng & HLV</button>
+                                <button onclick="openBookingModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_booking">📅 Đặt lịch với HLV</button>
+                                <button onclick="openMemberPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_schedule">📋 Lịch tập của tôi</button>
+                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_chat">💬 Hộp thư & Chat</button>
+                                <button onclick="openReviewModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_review">⭐ Đánh giá Phòng & HLV</button>
                             </div>
                             <div id="nav-menu-coach-links" class="hidden">
-                                <button onclick="openCoachPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💪 Cổng Huấn Luyện Viên</button>
-                                <button onclick="openCoachPortalModal('schedule'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">📅 Ai đã đặt lịch / Ca dạy</button>
-                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">💬 Hộp thư & Chat</button>
-                                <button onclick="openCoachPortalModal('cert'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">🎓 Cập nhật bằng cấp & bio</button>
+                                <button onclick="openCoachPortalModal(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_coach_portal">💪 Cổng Huấn Luyện Viên</button>
+                                <button onclick="openCoachPortalModal('schedule'); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_coach_schedule">📅 Ai đã đặt lịch / Ca dạy</button>
+                                <button onclick="toggleChatWidget(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_chat">💬 Hộp thư & Chat</button>
                             </div>
-                            <button onclick="openAccountSettings(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2">🔐 Đổi tên đăng nhập / mật khẩu</button>
-                            <button onclick="handleLogout(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-red-400 hover:bg-red-500/10 border-t border-white/10 flex items-center gap-2 mt-1">🚪 Đăng xuất</button>
+                            <button onclick="openAccountSettings(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-gray-200 hover:bg-white/10 flex items-center gap-2" data-i18n="auth_menu_settings">⚙️ Đổi thông tin đăng nhập</button>
+                            <button onclick="handleLogout(); toggleUserDropdown()" class="w-full text-left px-3 py-2 rounded text-red-400 hover:bg-red-500/10 border-t border-white/10 flex items-center gap-2 mt-1" data-i18n="auth_logout">🚪 Đăng xuất</button>
                         </div>
                     </div>
                 </div>
@@ -237,7 +236,7 @@
             <div class="pt-4 border-t border-white/10 flex flex-col gap-3">
                 <div id="mobile-auth-section">
                     <button onclick="openAuthModal(); toggleMobileMenu()" class="w-full py-2.5 bg-brand-red text-white font-bold text-xs uppercase tracking-wider text-center rounded">
-                        🔐 Đăng nhập
+                        <span data-i18n="auth_mobile_login">🔐 Đăng nhập Hội viên / HLV</span>
                     </button>
                 </div>
                 <button onclick="openModal('register'); toggleMobileMenu()" class="w-full py-3 bg-white text-black font-semibold text-xs uppercase tracking-wider text-center rounded">
@@ -835,25 +834,25 @@
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             <div class="text-center mb-6">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red">HỆ THỐNG NỘI BỘ THE OCEAN</span>
-                <h3 class="text-2xl font-black uppercase text-white font-display mt-1">ĐĂNG NHẬP</h3>
-                <p class="text-xs text-gray-400 mt-1">Dành cho Học viên, Huấn luyện viên và quản trị viên.</p>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-brand-red" data-i18n="auth_modal_system">HỆ THỐNG NỘI BỘ THE OCEAN</span>
+                <h3 class="text-2xl font-black uppercase text-white font-display mt-1" data-i18n="auth_modal_title">ĐĂNG NHẬP</h3>
+                <p class="text-xs text-gray-400 mt-1" data-i18n="auth_modal_subtitle">Dành cho Học viên, Huấn luyện viên và quản trị viên.</p>
             </div>
 
             <!-- Role Tabs -->
             <div class="auth-role-tabs bg-black/40 p-1 rounded-lg border border-white/10 mb-5">
-                <button type="button" id="auth-tab-member" onclick="switchAuthRole('member')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition">Hội Viên</button>
-                <button type="button" id="auth-tab-coach" onclick="switchAuthRole('coach')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition">Huấn Luyện Viên</button>
+                <button type="button" id="auth-tab-member" onclick="switchAuthRole('member')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition" data-i18n="auth_role_member">Hội Viên</button>
+                <button type="button" id="auth-tab-coach" onclick="switchAuthRole('coach')" class="flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition" data-i18n="auth_role_coach">Huấn Luyện Viên</button>
             </div>
 
             <form id="auth-form" onsubmit="handleAuthLogin(event)" class="space-y-4">
                 <div>
-                    <label id="auth-username-label" class="block text-xs font-semibold uppercase text-gray-400 mb-1">Tên đăng nhập hoặc Số điện thoại</label>
-                    <input id="auth-username" type="text" required placeholder="Nhập tên đăng nhập hoặc số điện thoại..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <label id="auth-username-label" class="block text-xs font-semibold uppercase text-gray-400 mb-1" data-i18n="auth_username_label_member">Tên đăng nhập hoặc Số điện thoại</label>
+                    <input id="auth-username" type="text" required placeholder="Nhập tên đăng nhập hoặc số điện thoại..." data-i18n-placeholder="auth_username_placeholder" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mật khẩu</label>
-                    <input id="auth-password" type="password" required placeholder="Nhập mật khẩu..." class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-1" data-i18n="auth_password_label">Mật khẩu</label>
+                    <input id="auth-password" type="password" required placeholder="Nhập mật khẩu..." data-i18n-placeholder="auth_password_placeholder" class="w-full bg-black/50 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-red">
                 </div>
 
                 <div id="auth-hint" class="p-3 bg-white/5 border border-white/10 rounded-lg text-[11px] text-gray-400 leading-relaxed">
@@ -865,7 +864,7 @@
                 <p id="auth-error" class="hidden text-xs text-red-400 bg-red-950/40 border border-red-800 p-2.5 rounded-lg" role="alert"></p>
 
                 <button type="submit" class="w-full py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-gray-200 transition shadow-lg">
-                    Xác nhận Đăng nhập ↗
+                    <span data-i18n="auth_btn_submit">Xác nhận Đăng nhập ↗</span>
                 </button>
             </form>
         </div>
@@ -1700,7 +1699,30 @@
                 footer_desc: 'Private gym tại Thủ Đức với mô hình tập luyện 1 kèm 1, không gian riêng tư và lộ trình hướng tới mục tiêu rõ ràng.',
                 footer_nav_heading: 'Điều hướng',
                 footer_contact_heading: 'Liên hệ',
-                footer_copyright: '© 2026 THE OCEAN GYM THỦ ĐỨC. ALL RIGHTS RESERVED.'
+                footer_copyright: '© 2026 THE OCEAN GYM THỦ ĐỨC. ALL RIGHTS RESERVED.',
+                auth_login_btn: 'Đăng nhập',
+                auth_mobile_login: '🔐 Đăng nhập Hội viên / HLV',
+                auth_role_member: 'Hội Viên',
+                auth_role_coach: 'Huấn Luyện Viên',
+                auth_modal_title: 'ĐĂNG NHẬP',
+                auth_modal_subtitle: 'Dành cho Học viên, Huấn luyện viên và quản trị viên.',
+                auth_modal_system: 'HỆ THỐNG NỘI BỘ THE OCEAN',
+                auth_username_label_member: 'Số điện thoại hoặc Tên đăng nhập',
+                auth_username_label_coach: 'Tên đăng nhập HLV (hoặc Số điện thoại HLV)',
+                auth_username_placeholder: 'Nhập tên đăng nhập hoặc số điện thoại...',
+                auth_password_label: 'Mật khẩu',
+                auth_password_placeholder: 'Nhập mật khẩu...',
+                auth_btn_submit: 'Xác nhận Đăng nhập ↗',
+                auth_logout: 'Đăng xuất',
+                auth_member_badge: 'HỘI VIÊN',
+                auth_coach_badge: 'HLV',
+                auth_menu_booking: '📅 Đặt lịch với HLV',
+                auth_menu_schedule: '📋 Lịch tập của tôi',
+                auth_menu_chat: '💬 Hộp thư & Chat',
+                auth_menu_review: '⭐ Đánh giá Phòng & HLV',
+                auth_menu_coach_portal: '💪 Cổng Huấn Luyện Viên',
+                auth_menu_coach_schedule: '📅 Ai đã đặt lịch / Ca dạy',
+                auth_menu_settings: '⚙️ Đổi thông tin đăng nhập'
             },
             en: {
                 nav_programs: 'Training Programs',
@@ -1874,7 +1896,30 @@
                 footer_desc: 'Private training in Thu Duc, with one-on-one coaching, a quiet space and programs built around your goals.',
                 footer_nav_heading: 'Explore',
                 footer_contact_heading: 'Contact',
-                footer_copyright: '© 2026 THE OCEAN GYM THU DUC. ALL RIGHTS RESERVED.'
+                footer_copyright: '© 2026 THE OCEAN GYM THU DUC. ALL RIGHTS RESERVED.',
+                auth_login_btn: 'Log In',
+                auth_mobile_login: '🔐 Member / Coach Login',
+                auth_role_member: 'Member',
+                auth_role_coach: 'Coach',
+                auth_modal_title: 'LOG IN',
+                auth_modal_subtitle: 'For Members, Coaches, and Administrators.',
+                auth_modal_system: 'THE OCEAN INTERNAL SYSTEM',
+                auth_username_label_member: 'Phone number or Username',
+                auth_username_label_coach: 'Coach Username (or Phone number)',
+                auth_username_placeholder: 'Enter username or phone number...',
+                auth_password_label: 'Password',
+                auth_password_placeholder: 'Enter password...',
+                auth_btn_submit: 'Confirm Login ↗',
+                auth_logout: 'Log out',
+                auth_member_badge: 'MEMBER',
+                auth_coach_badge: 'COACH',
+                auth_menu_booking: '📅 Book a Coach Session',
+                auth_menu_schedule: '📋 My Training Schedule',
+                auth_menu_chat: '💬 Messages & Live Chat',
+                auth_menu_review: '⭐ Rate Gym & Coach',
+                auth_menu_coach_portal: '💪 Coach Portal',
+                auth_menu_coach_schedule: '📅 Teaching Schedule',
+                auth_menu_settings: '⚙️ Change Login Credentials'
             }
         };
 
@@ -1917,6 +1962,9 @@
             document.title = i18n[lang].page_title;
             setActiveFloor(activeFloor);
             handleSearch();
+            // Refresh dynamically-set auth modal texts
+            if (typeof switchAuthRole === 'function') switchAuthRole(activeAuthRole);
+            if (typeof updateAuthUI === 'function') updateAuthUI();
         }
 
         // ==========================================
@@ -1984,9 +2032,10 @@
                 if (loginBtn) loginBtn.classList.remove('hidden');
                 if (userMenu) userMenu.classList.add('hidden');
                 if (mobileAuthSection) {
+                    const mobileLoginText = (typeof i18n !== 'undefined' && i18n[activeLanguage] && i18n[activeLanguage].auth_mobile_login) ? i18n[activeLanguage].auth_mobile_login : '🔐 Đăng nhập Hội viên / HLV';
                     mobileAuthSection.innerHTML = `
                         <button onclick="openAuthModal(); toggleMobileMenu()" class="w-full py-2.5 bg-brand-red text-white font-bold text-xs uppercase tracking-wider text-center rounded">
-                            🔐 Đăng nhập Hội viên / HLV
+                            ${mobileLoginText}
                         </button>
                     `;
                 }
@@ -2093,16 +2142,22 @@
             const label = document.getElementById('auth-username-label');
             const hint = document.getElementById('auth-hint');
 
+            const t = (typeof i18n !== 'undefined' && i18n[activeLanguage]) ? i18n[activeLanguage] : {};
+            const isEn = activeLanguage === 'en';
             if (role === 'member') {
                 tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
                 tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
-                label.textContent = 'Số điện thoại hoặc Tên đăng nhập';
-                hint.innerHTML = '💡 <em>Học viên: Đăng nhập bằng Số điện thoại hoặc Username do Admin cấp khi chốt gói.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
+                label.textContent = t.auth_username_label_member || 'Số điện thoại hoặc Tên đăng nhập';
+                hint.innerHTML = isEn
+                    ? '💡 <em>Members: Log in with the phone number or username assigned by Admin.</em><br>💡 <em>Administrators: Log in with the admin email and password.</em>'
+                    : '💡 <em>Học viên: Đăng nhập bằng Số điện thoại hoặc Username do Admin cấp khi chốt gói.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
             } else {
                 tabCoach.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-red text-white transition';
                 tabMember.className = 'flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md text-gray-400 hover:text-white transition';
-                label.textContent = 'Tên đăng nhập HLV (hoặc Số điện thoại HLV)';
-                hint.innerHTML = '💡 <em>HLV: Tên tài khoản HLV (VD: <code>coach-hai</code>, <code>coach-thao</code>) • Mật khẩu mặc định: <code>coach123</code>.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
+                label.textContent = t.auth_username_label_coach || 'Tên đăng nhập HLV (hoặc Số điện thoại HLV)';
+                hint.innerHTML = isEn
+                    ? '💡 <em>Coaches: Use your coach username (e.g. <code>coach-hai</code>, <code>coach-thao</code>) • Default password: <code>coach123</code>.</em><br>💡 <em>Administrators: Log in with the admin email and password.</em>'
+                    : '💡 <em>HLV: Tên tài khoản HLV (VD: <code>coach-hai</code>, <code>coach-thao</code>) • Mật khẩu mặc định: <code>coach123</code>.</em><br>💡 <em>Quản trị viên: đăng nhập bằng email và mật khẩu admin đã cấu hình.</em>';
             }
             document.getElementById('auth-error').classList.add('hidden');
         }
